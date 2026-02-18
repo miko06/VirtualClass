@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -9,17 +9,27 @@ services:
       POSTGRES_PASSWORD: vc
     ports:
       - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vc -d vc"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   backend:
     image: node:20
     working_dir: /app
     volumes:
       - ./backend:/app
-    command: sh -c "npm install && npm run start:dev"
+    environment:
+      DATABASE_URL: "postgresql://vc:vc@postgres:5432/vc?schema=public"
+    command: sh -c "npm install && npx prisma generate && npm run start:dev"
     ports:
       - "3001:3001"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   frontend:
     image: node:20
@@ -40,3 +50,7 @@ services:
     command: sh -c "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000"
     ports:
       - "8000:8000"
+
+volumes:
+  pgdata:
+
