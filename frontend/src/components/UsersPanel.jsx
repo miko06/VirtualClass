@@ -50,22 +50,27 @@ export function UsersPanel() {
 
   return (
     <section className="users-layout">
-      <article className="users-card">
+      <article className="glass-card users-card">
         <div className="card-header">
-          <h2>Users API</h2>
-          <button type="button" onClick={loadUsers} disabled={loading}>
-            {loading ? "Refreshing..." : "Refresh"}
+          <h2>Пользователи</h2>
+          <button
+            className="ui-btn"
+            type="button"
+            onClick={loadUsers}
+            disabled={loading}
+          >
+            {loading ? "Обновление..." : "Обновить"}
           </button>
         </div>
         {error && <p className="error-msg">{error}</p>}
         {!error && users.length === 0 && !loading && (
-          <p className="empty-msg">No users yet.</p>
+          <p className="empty-msg">Пока нет пользователей.</p>
         )}
         <ul className="users-list">
           {users.map((user) => (
             <li key={user.id}>
               <div>
-                <p className="name">{user.name || "No name"}</p>
+                <p className="name">{user.name || "Без имени"}</p>
                 <p className="email">{user.email}</p>
               </div>
               <span>{user.role}</span>
@@ -74,15 +79,15 @@ export function UsersPanel() {
         </ul>
       </article>
 
-      <article className="users-card">
-        <h2>Create User</h2>
+      <article className="glass-card users-card">
+        <h2>Создать пользователя</h2>
         <form className="users-form" onSubmit={onSubmit}>
           <label>
-            Name
+            Имя
             <input
               type="text"
               required
-              placeholder="Jane Doe"
+              placeholder="Иван Иванов"
               value={form.name}
               onChange={(event) =>
                 setForm((prev) => ({ ...prev, name: event.target.value }))
@@ -102,20 +107,20 @@ export function UsersPanel() {
             />
           </label>
           <label>
-            Password
+            Пароль
             <input
               type="password"
               required
               minLength={6}
-              placeholder="at least 6 characters"
+              placeholder="минимум 6 символов"
               value={form.password}
               onChange={(event) =>
                 setForm((prev) => ({ ...prev, password: event.target.value }))
               }
             />
           </label>
-          <button type="submit" disabled={saving}>
-            {saving ? "Creating..." : "Create user"}
+          <button className="ui-btn" type="submit" disabled={saving}>
+            {saving ? "Создание..." : "Создать"}
           </button>
         </form>
       </article>
