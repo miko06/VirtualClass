@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "dev": "docker compose up -d && npm --prefix frontend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
     "dev:backend": "docker compose up -d && docker compose logs -f backend",
     "up": "docker compose up -d",
