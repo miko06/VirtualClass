@@ -18,3 +18,9 @@ build/
 .vscode/
 
 /generated/prisma
+
+# Temporary files
+*.zip
+zip_extracted/
+
+components/
