@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "docker compose up -d && docker compose logs -f backend",
+    "up": "docker compose up -d",
+    "logs:backend": "docker compose logs -f backend"
+  },
   "dependencies": {
     "@prisma/client": "^7.4.0",
     "prisma": "^7.4.0"
