@@ -9,12 +9,6 @@ interface Message {
   timestamp: Date;
 }
 
-const cardStyle = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.08)',
-  backdropFilter: 'blur(10px)',
-};
-
 export function AIAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -27,9 +21,9 @@ export function AIAssistant() {
   const [inputValue, setInputValue] = useState('');
 
   const quickActions = [
-    { icon: BookOpen, label: 'Объяснить тему', query: 'Можешь объяснить последнюю тему из курса?', gradient: 'linear-gradient(135deg, #7c3aed, #6366f1)' },
-    { icon: FileText, label: 'Помощь с заданием', query: 'Нужна помощь с домашним заданием', gradient: 'linear-gradient(135deg, #06b6d4, #3b82f6)' },
-    { icon: Calculator, label: 'Решить задачу', query: 'Помоги решить задачу по алгоритмам', gradient: 'linear-gradient(135deg, #10b981, #059669)' },
+    { icon: BookOpen, label: 'Объяснить тему', query: 'Можешь объяснить последнюю тему из курса?', gradient: 'linear-gradient(135deg, #4f46e5, #0ea5e9)' },
+    { icon: FileText, label: 'Помощь с заданием', query: 'Нужна помощь с домашним заданием', gradient: 'linear-gradient(135deg, #0ea5e9, #38bdf8)' },
+    { icon: Calculator, label: 'Решить задачу', query: 'Помоги решить задачу по алгоритмам', gradient: 'linear-gradient(135deg, #10b981, #14b8a6)' },
     { icon: Sparkles, label: 'Подготовка к экзамену', query: 'Как лучше подготовиться к экзамену?', gradient: 'linear-gradient(135deg, #ec4899, #8b5cf6)' },
   ];
 
@@ -64,86 +58,108 @@ export function AIAssistant() {
   };
 
   return (
-    <div className="p-8 h-full flex flex-col">
-      <div className="mb-6">
-        <h2 className="text-3xl mb-1" style={{ color: '#e2e8f0' }}>ИИ Помощник</h2>
-        <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Задайте любой вопрос по учебным материалам</p>
-      </div>
+    <div className="p-8 h-full flex flex-col relative overflow-hidden bg-slate-50">
+      {/* Background patterns */}
+      <div
+        className="absolute inset-0 opacity-40 pointer-events-none z-0"
+        style={{
+          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
+          backgroundSize: '32px 32px'
+        }}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8 relative z-10"
+      >
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #4f46e5, #0ea5e9)' }}>
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">ИИ Помощник</h2>
+        </div>
+        <p className="text-slate-500 font-medium text-sm ml-13 pl-1">
+          Задайте любой вопрос по учебным материалам
+        </p>
+      </motion.div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 relative z-10">
         {quickActions.map((action, index) => {
           const Icon = action.icon;
           return (
             <motion.button
               key={action.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.05 + 0.1 }}
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setInputValue(action.query)}
-              className="p-4 rounded-xl text-left transition-all"
-              style={cardStyle}
+              className="p-5 rounded-2xl text-left transition-all bg-white shadow-lg shadow-slate-200/50 ring-1 ring-slate-100 hover:ring-indigo-100 hover:shadow-xl hover:shadow-indigo-500/10 group"
             >
               <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center mb-2"
+                className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 shadow-md group-hover:shadow-lg transition-shadow"
                 style={{ background: action.gradient }}
               >
-                <Icon className="w-4 h-4 text-white" />
+                <Icon className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>{action.label}</span>
+              <span className="text-sm font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">
+                {action.label}
+              </span>
             </motion.button>
           );
         })}
       </div>
 
       {/* Chat Area */}
-      <div
-        className="flex-1 rounded-2xl flex flex-col overflow-hidden"
-        style={cardStyle}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="flex-1 rounded-3xl flex flex-col bg-white shadow-2xl shadow-slate-200/50 ring-1 ring-slate-100 relative z-10 overflow-hidden"
       >
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4">
-          {messages.map((message) => (
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {messages.map((message, index) => (
             <motion.div
               key={message.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`flex gap-3 ${message.type === 'user' ? 'flex-row-reverse' : ''}`}
+              initial={{ opacity: 0, y: 10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className={`flex gap-4 ${message.type === 'user' ? 'flex-row-reverse' : ''}`}
             >
               <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm ${message.type === 'ai'
+                    ? 'shadow-indigo-500/20'
+                    : 'bg-slate-100 border border-slate-200'
+                  }`}
                 style={{
                   background: message.type === 'ai'
-                    ? 'linear-gradient(135deg, #7c3aed, #6366f1)'
-                    : 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-                  border: message.type === 'user' ? '1px solid rgba(255,255,255,0.1)' : undefined,
-                  boxShadow: message.type === 'ai' ? '0 0 15px rgba(124,58,237,0.3)' : undefined,
+                    ? 'linear-gradient(135deg, #4f46e5, #0ea5e9)'
+                    : undefined
                 }}
               >
                 {message.type === 'ai' ? (
-                  <Bot className="w-4 h-4 text-white" />
+                  <Bot className="w-5 h-5 text-white drop-shadow-sm" />
                 ) : (
-                  <User className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.7)' }} />
+                  <User className="w-5 h-5 text-slate-400" />
                 )}
               </div>
               <div className={`flex-1 ${message.type === 'user' ? 'flex justify-end' : ''}`}>
                 <div
-                  className="inline-block px-4 py-3 rounded-2xl max-w-2xl"
+                  className={`inline-block px-5 py-4 max-w-2xl text-sm leading-relaxed ${message.type === 'ai'
+                      ? 'bg-slate-50 text-slate-700 rounded-3xl rounded-tl-xl border border-slate-100 shadow-sm'
+                      : 'text-white rounded-3xl rounded-tr-xl shadow-md'
+                    }`}
                   style={
-                    message.type === 'ai'
-                      ? {
-                          background: 'rgba(255,255,255,0.06)',
-                          border: '1px solid rgba(255,255,255,0.08)',
-                        }
-                      : {
-                          background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
-                          boxShadow: '0 0 15px rgba(124,58,237,0.3)',
-                        }
+                    message.type === 'user'
+                      ? { background: 'linear-gradient(135deg, #4f46e5, #6366f1)' }
+                      : {}
                   }
                 >
-                  <p className="text-sm leading-relaxed" style={{ color: '#e2e8f0' }}>
-                    {message.content}
-                  </p>
+                  <p>{message.content}</p>
                 </div>
               </div>
             </motion.div>
@@ -151,38 +167,31 @@ export function AIAssistant() {
         </div>
 
         {/* Input Area */}
-        <div
-          className="p-4"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
-        >
-          <div className="flex gap-3">
+        <div className="p-5 bg-white border-t border-slate-100">
+          <div className="flex gap-3 items-center bg-slate-50 p-2 rounded-2xl border border-slate-200 focus-within:ring-2 focus-within:ring-indigo-100 focus-within:border-indigo-300 transition-all shadow-inner">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Задайте вопрос..."
-              className="flex-1 px-4 py-3 rounded-xl text-sm outline-none transition-all"
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: '#e2e8f0',
-              }}
+              placeholder="Задайте вопрос помощнику..."
+              className="flex-1 px-4 py-3 bg-transparent text-sm text-slate-900 outline-none placeholder-slate-400 font-medium"
             />
             <button
               onClick={handleSendMessage}
               disabled={!inputValue.trim()}
-              className="px-4 py-3 rounded-xl text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{
-                background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
-                boxShadow: '0 0 15px rgba(124,58,237,0.3)',
-              }}
+              className="p-3.5 rounded-xl text-white transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:shadow-none"
+              style={
+                inputValue.trim()
+                  ? { background: 'linear-gradient(135deg, #4f46e5, #6366f1)', boxShadow: '0 4px 12px rgba(79,70,229,0.3)' }
+                  : { background: '#cbd5e1' }
+              }
             >
               <Send className="w-5 h-5" />
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

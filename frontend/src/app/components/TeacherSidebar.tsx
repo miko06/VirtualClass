@@ -12,71 +12,69 @@ export function TeacherSidebar({ activeTab, onTabChange, onLogout }: TeacherSide
     { id: 'dashboard', label: 'Главная', icon: Home },
     { id: 'courses', label: 'Курсы', icon: BookOpen },
     { id: 'materials', label: 'Материалы', icon: Upload },
-    { id: 'ai-generator', label: 'Генератор заданий', icon: Bot },
-    { id: 'submissions', label: 'Работы студентов', icon: FileText },
+    { id: 'ai-generator', label: 'Генератор', icon: Bot },
+    { id: 'submissions', label: 'Работы', icon: FileText },
     { id: 'analytics', label: 'Аналитика', icon: BarChart3 },
     { id: 'students', label: 'Студенты', icon: Users },
   ];
 
   return (
     <aside
-      className="w-64 flex flex-col relative z-20 flex-shrink-0"
+      className="w-72 flex flex-col relative z-20 flex-shrink-0 bg-white"
       style={{
-        background: 'rgba(10,10,25,0.95)',
-        borderRight: '1px solid rgba(139,92,246,0.15)',
-        backdropFilter: 'blur(20px)',
+        borderRight: '1px solid #e2e8f0',
+        boxShadow: '4px 0 24px rgba(0,0,0,0.02)',
       }}
     >
       {/* Sidebar gradient accent */}
       <div
-        className="absolute top-0 right-0 w-px h-full"
+        className="absolute top-0 right-0 w-1 h-full opacity-50"
         style={{
-          background: 'linear-gradient(180deg, transparent, rgba(139,92,246,0.4), rgba(6,182,212,0.3), transparent)',
+          background: 'linear-gradient(180deg, transparent, #2dd4bf, #0ea5e9, transparent)',
         }}
       />
 
       {/* Logo */}
       <div
-        className="p-5 relative"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+        className="p-6 relative bg-white/50 backdrop-blur-sm z-10"
+        style={{ borderBottom: '1px solid #f1f5f9' }}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center relative overflow-hidden flex-shrink-0"
+            className="w-12 h-12 rounded-2xl flex items-center justify-center relative overflow-hidden flex-shrink-0 shadow-lg shadow-teal-500/20 border border-teal-100"
             style={{
-              background: 'linear-gradient(135deg, #7c3aed, #6366f1, #06b6d4)',
-              boxShadow: '0 0 20px rgba(124,58,237,0.5)',
+              background: 'linear-gradient(135deg, #0d9488, #0ea5e9)',
             }}
           >
-            <Bot className="w-5 h-5 text-white relative z-10" />
+            <Bot className="w-6 h-6 text-white relative z-10 drop-shadow-sm" />
           </div>
           <div>
             <h1
-              className="text-sm"
+              className="text-lg tracking-tight"
               style={{
-                fontWeight: 700,
-                background: 'linear-gradient(135deg, #c4b5fd, #67e8f9)',
+                fontWeight: 800,
+                background: 'linear-gradient(135deg, #0d9488, #0ea5e9)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
               }}
             >
-              EduClass AI
+              EduClass
             </h1>
-            <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" style={{ boxShadow: '0 0 4px #06b6d4' }} />
-              <p className="text-xs text-cyan-400">Преподаватель</p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <div className="w-2 h-2 rounded-full bg-indigo-400 shadow-sm shadow-indigo-400/50" />
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Учитель</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 overflow-y-auto">
-        <p className="text-xs uppercase tracking-wider px-3 mb-3" style={{ color: 'rgba(255,255,255,0.2)' }}>
-          Навигация
+      <nav className="flex-1 p-4 overflow-y-auto">
+        <p className="text-xs font-bold uppercase tracking-wider px-4 mb-4 text-slate-400">
+          Меню
         </p>
-        <ul className="space-y-1">
+        <ul className="space-y-1.5">
           {menuItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -89,44 +87,50 @@ export function TeacherSidebar({ activeTab, onTabChange, onLogout }: TeacherSide
               >
                 <button
                   onClick={() => onTabChange(item.id)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative"
+                  className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-300 relative group overflow-hidden outline-none"
                   style={
                     isActive
                       ? {
-                          background: 'rgba(139,92,246,0.18)',
-                          border: '1px solid rgba(139,92,246,0.35)',
-                          boxShadow: '0 0 15px rgba(139,92,246,0.15)',
-                        }
+                        background: 'linear-gradient(90deg, #f0fdfa 0%, #ffffff 100%)',
+                        boxShadow: '0 2px 10px rgba(20,184,166,0.05)',
+                      }
                       : {
-                          background: 'transparent',
-                          border: '1px solid transparent',
-                        }
+                        background: 'transparent',
+                      }
                   }
                 >
+                  {/* Hover Background */}
+                  {!isActive && (
+                    <div className="absolute inset-0 bg-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  )}
+
+                  {/* Active Indicator Strip */}
                   {isActive && (
-                    <div
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-full"
-                      style={{ background: 'linear-gradient(180deg, #7c3aed, #06b6d4)' }}
+                    <motion.div
+                      layoutId="sidebar-active-indicator-teacher"
+                      className="absolute left-0 top-0 bottom-0 w-1.5 rounded-r-full"
+                      style={{ background: 'linear-gradient(180deg, #0d9488, #0ea5e9)' }}
                     />
                   )}
-                  <Icon
-                    className="w-4 h-4 flex-shrink-0 transition-colors"
-                    style={{ color: isActive ? '#c4b5fd' : 'rgba(255,255,255,0.4)' }}
-                  />
+
+                  <div className={`relative z-10 flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${isActive ? 'bg-teal-100 text-teal-600' : 'bg-transparent text-slate-400 group-hover:bg-white group-hover:text-teal-500 group-hover:shadow-sm'
+                    }`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+
                   <span
-                    className="text-sm transition-colors"
-                    style={{
-                      color: isActive ? '#c4b5fd' : 'rgba(255,255,255,0.55)',
-                      fontWeight: isActive ? 600 : 400,
-                    }}
+                    className={`relative z-10 text-sm transition-colors ${isActive ? 'text-teal-900 font-bold' : 'text-slate-600 font-medium group-hover:text-slate-900'
+                      }`}
                   >
                     {item.label}
                   </span>
+
                   {item.id === 'ai-generator' && (
-                    <Sparkles
-                      className="w-3 h-3 ml-auto"
-                      style={{ color: isActive ? '#a78bfa' : 'rgba(139,92,246,0.4)' }}
-                    />
+                    <div className="ml-auto relative z-10 flex items-center justify-center">
+                      <Sparkles
+                        className={`w-4 h-4 transition-colors ${isActive ? 'text-teal-500' : 'text-slate-300 group-hover:text-teal-400'}`}
+                      />
+                    </div>
                   )}
                 </button>
               </motion.li>
@@ -136,26 +140,13 @@ export function TeacherSidebar({ activeTab, onTabChange, onLogout }: TeacherSide
       </nav>
 
       {/* Bottom: Logout */}
-      <div className="p-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+      <div className="p-4 bg-slate-50/50" style={{ borderTop: '1px solid #f1f5f9' }}>
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200"
-          style={{
-            background: 'rgba(239,68,68,0.06)',
-            border: '1px solid rgba(239,68,68,0.12)',
-            color: 'rgba(248,113,113,0.7)',
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.12)';
-            (e.currentTarget as HTMLButtonElement).style.color = 'rgb(248,113,113)';
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.06)';
-            (e.currentTarget as HTMLButtonElement).style.color = 'rgba(248,113,113,0.7)';
-          }}
+          className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group font-semibold text-sm outline-none bg-white border border-slate-200 text-slate-600 hover:border-red-200 hover:bg-red-50 hover:text-red-600 hover:shadow-sm"
         >
-          <LogOut className="w-4 h-4" />
-          <span className="text-sm">Выйти</span>
+          <LogOut className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+          <span>Выйти</span>
         </button>
       </div>
     </aside>

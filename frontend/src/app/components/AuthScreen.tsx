@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { usersApi } from '../../api/client';
-import { motion, AnimatePresence } from 'motion/react';
-import { GraduationCap, Eye, EyeOff, Mail, Lock, User, Bot, Sparkles, Shield, Zap } from 'lucide-react';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'motion/react';
+import { GraduationCap, Eye, EyeOff, Mail, Lock, User, Bot } from 'lucide-react';
 
 type AuthView = 'login' | 'register';
 type UserRole = 'teacher' | 'student';
@@ -89,67 +89,58 @@ export function AuthScreen({ onAuth }: AuthScreenProps) {
   };
 
   const inputClass = (err?: string) =>
-    `w-full pl-11 pr-4 py-3 bg-white/5 border rounded-xl text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 transition-all text-sm ${err
-      ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/30'
-      : 'border-white/10 focus:border-violet-500 focus:ring-violet-500/30'
+    `w-full pl-11 pr-4 py-3 bg-white border rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-all text-sm shadow-sm ${err
+      ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
+      : 'border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20'
     }`;
 
-  return (
-    <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4" style={{ background: '#060612' }}>
-      {/* Animated RGB orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="orb-1 absolute w-[700px] h-[700px] rounded-full"
-          style={{
-            background: 'radial-gradient(circle, rgba(124,58,237,0.35) 0%, transparent 70%)',
-            top: '-200px',
-            left: '-200px',
-            filter: 'blur(60px)',
-          }}
-        />
-        <div
-          className="orb-2 absolute w-[600px] h-[600px] rounded-full"
-          style={{
-            background: 'radial-gradient(circle, rgba(6,182,212,0.25) 0%, transparent 70%)',
-            bottom: '-100px',
-            right: '-150px',
-            filter: 'blur(60px)',
-          }}
-        />
-        <div
-          className="orb-3 absolute w-[400px] h-[400px] rounded-full"
-          style={{
-            background: 'radial-gradient(circle, rgba(236,72,153,0.2) 0%, transparent 70%)',
-            top: '40%',
-            left: '50%',
-            filter: 'blur(60px)',
-          }}
-        />
-        <div
-          className="orb-4 absolute w-[300px] h-[300px] rounded-full"
-          style={{
-            background: 'radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%)',
-            bottom: '20%',
-            left: '10%',
-            filter: 'blur(50px)',
-          }}
-        />
-      </div>
+  // 3D Tilt Effect logic
+  const cardRef = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
 
-      {/* Grid overlay */}
+  const mouseXSpring = useSpring(x, { stiffness: 100, damping: 30 });
+  const mouseYSpring = useSpring(y, { stiffness: 100, damping: 30 });
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ['5deg', '-5deg']);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ['-5deg', '5deg']);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4 bg-slate-50 text-slate-900 font-sans" style={{ perspective: '1200px' }}>
+
+      {/* Background patterns */}
       <div
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-40"
         style={{
-          backgroundImage:
-            'linear-gradient(rgba(139,92,246,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(139,92,246,0.06) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
+          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
+          backgroundSize: '32px 32px'
         }}
       />
 
-      {/* Noise texture */}
-      <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
+      {/* Soft gradient backgrounds for light mode */}
+      <div className="absolute top-0 right-0 -mr-40 -mt-40 w-[600px] h-[600px] rounded-full bg-indigo-100/60 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 -ml-40 -mb-40 w-[600px] h-[600px] rounded-full bg-teal-100/60 blur-[100px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md">
+
         {/* Logo Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -159,415 +150,328 @@ export function AuthScreen({ onAuth }: AuthScreenProps) {
         >
           <div className="relative inline-flex mb-5">
             <div
-              className="w-20 h-20 rounded-2xl flex items-center justify-center relative overflow-hidden"
-              style={{
-                background: 'linear-gradient(135deg, #7c3aed, #6366f1, #06b6d4)',
-                boxShadow: '0 0 40px rgba(124,58,237,0.6), 0 0 80px rgba(124,58,237,0.2)',
-              }}
+              className="w-20 h-20 rounded-2xl flex items-center justify-center relative overflow-hidden bg-white shadow-xl shadow-indigo-500/10 border border-slate-100"
             >
-              <Bot className="w-10 h-10 text-white relative z-10" />
-              <div
-                className="absolute inset-0 opacity-30"
-                style={{
-                  background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%)',
-                  animation: 'shimmer 3s infinite',
-                  backgroundSize: '200% 200%',
-                }}
-              />
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-cyan-500 opacity-10" />
+              <Bot className="w-10 h-10 text-indigo-600 relative z-10" />
             </div>
-            <div
-              className="absolute -inset-2 rounded-3xl opacity-20 blur-md"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)' }}
-            />
           </div>
           <h1
-            className="text-4xl mb-2"
+            className="text-4xl mb-2 tracking-tight"
             style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontWeight: 700,
-              background: 'linear-gradient(135deg, #c4b5fd 0%, #67e8f9 50%, #f9a8d4 100%)',
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #4f46e5 0%, #0891b2 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
             }}
           >
-            EduClass AI
+            EduClass
           </h1>
-          <p className="text-slate-400 text-sm">Виртуальный класс с ИИ-ассистентом</p>
-
-          {/* Feature pills */}
-          <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
-            {[
-              { icon: Sparkles, label: 'ИИ-генерация', color: 'text-violet-400' },
-              { icon: Shield, label: 'Безопасно', color: 'text-cyan-400' },
-              { icon: Zap, label: 'Быстро', color: 'text-pink-400' },
-            ].map(({ icon: Icon, label, color }) => (
-              <span
-                key={label}
-                className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs ${color}`}
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
-              >
-                <Icon className="w-3 h-3" />
-                {label}
-              </span>
-            ))}
-          </div>
+          <p className="text-slate-500 text-sm font-medium">Профессиональная цифровая среда</p>
         </motion.div>
 
-        {/* Auth Card */}
+        {/* Auth Card with 3D Tilt */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="rounded-2xl p-8 relative"
+          ref={cardRef}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
           style={{
-            backdropFilter: 'blur(40px)',
-            WebkitBackdropFilter: 'blur(40px)',
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)',
+            rotateX,
+            rotateY,
+            transformStyle: "preserve-3d",
           }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="rounded-2xl p-8 relative bg-white shadow-2xl shadow-indigo-500/5 ring-1 ring-slate-900/5 group"
         >
-          {/* Gradient top border */}
+          {/* Subtle reflection effect on the card */}
           <div
-            className="absolute top-0 left-0 right-0 h-px rounded-t-2xl"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.6), rgba(6,182,212,0.6), transparent)' }}
+            className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle at 50% 0%, rgba(255,255,255,0.8), transparent 60%)',
+              transform: 'translateZ(1px)' // Prevents Z-fighting
+            }}
           />
 
-          {/* Tab Switcher */}
-          <div
-            className="flex p-1 rounded-xl mb-7"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
-          >
-            {(['login', 'register'] as const).map(v => (
-              <button
-                key={v}
-                onClick={() => { setView(v); setErrors({}); }}
-                className="flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-300"
-                style={
-                  view === v
-                    ? {
-                      background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
-                      color: '#fff',
-                      boxShadow: '0 4px 15px rgba(124,58,237,0.4)',
-                    }
-                    : { color: '#94a3b8' }
-                }
-              >
-                {v === 'login' ? 'Вход' : 'Регистрация'}
-              </button>
-            ))}
-          </div>
-
-          {/* Role Selection */}
-          <div className="mb-6">
-            <p className="text-slate-500 text-xs uppercase tracking-wider mb-3">Выберите роль</p>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setSelectedRole('student')}
-                className="p-4 rounded-xl transition-all duration-300 flex flex-col items-center gap-2"
-                style={
-                  selectedRole === 'student'
-                    ? {
-                      background: 'rgba(139,92,246,0.15)',
-                      border: '1px solid rgba(139,92,246,0.5)',
-                      boxShadow: '0 0 20px rgba(139,92,246,0.15)',
-                    }
-                    : {
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.07)',
-                    }
-                }
-              >
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{
-                    background: selectedRole === 'student'
-                      ? 'linear-gradient(135deg, rgba(139,92,246,0.4), rgba(99,102,241,0.4))'
-                      : 'rgba(255,255,255,0.05)',
-                  }}
+          <div style={{ transform: 'translateZ(30px)' }}>
+            {/* Tab Switcher */}
+            <div
+              className="flex p-1 rounded-xl mb-7 bg-slate-100/80 border border-slate-200"
+            >
+              {(['login', 'register'] as const).map(v => (
+                <button
+                  key={v}
+                  onClick={() => { setView(v); setErrors({}); }}
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 ${view === v
+                      ? 'bg-white text-indigo-700 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
+                    }`}
                 >
-                  <GraduationCap
-                    className="w-5 h-5"
-                    style={{ color: selectedRole === 'student' ? '#c4b5fd' : '#64748b' }}
-                  />
-                </div>
-                <span
-                  className="text-xs font-medium"
-                  style={{ color: selectedRole === 'student' ? '#c4b5fd' : '#64748b' }}
-                >
-                  Студент
-                </span>
-              </button>
-
-              <button
-                onClick={() => setSelectedRole('teacher')}
-                className="p-4 rounded-xl transition-all duration-300 flex flex-col items-center gap-2"
-                style={
-                  selectedRole === 'teacher'
-                    ? {
-                      background: 'rgba(6,182,212,0.12)',
-                      border: '1px solid rgba(6,182,212,0.5)',
-                      boxShadow: '0 0 20px rgba(6,182,212,0.15)',
-                    }
-                    : {
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.07)',
-                    }
-                }
-              >
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{
-                    background: selectedRole === 'teacher'
-                      ? 'linear-gradient(135deg, rgba(6,182,212,0.4), rgba(14,165,233,0.4))'
-                      : 'rgba(255,255,255,0.05)',
-                  }}
-                >
-                  <User
-                    className="w-5 h-5"
-                    style={{ color: selectedRole === 'teacher' ? '#67e8f9' : '#64748b' }}
-                  />
-                </div>
-                <span
-                  className="text-xs font-medium"
-                  style={{ color: selectedRole === 'teacher' ? '#67e8f9' : '#64748b' }}
-                >
-                  Преподаватель
-                </span>
-              </button>
+                  {v === 'login' ? 'Вход' : 'Регистрация'}
+                </button>
+              ))}
             </div>
+
+            {/* Role Selection */}
+            <div className="mb-6">
+              <p className="text-slate-400 text-xs uppercase tracking-wider font-bold mb-3">Роль</p>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setSelectedRole('student')}
+                  className={`p-4 rounded-xl transition-all duration-300 flex flex-col items-center gap-2 border-2 ${selectedRole === 'student'
+                      ? 'bg-indigo-50/50 border-indigo-500 shadow-sm shadow-indigo-500/20'
+                      : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50'
+                    }`}
+                >
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${selectedRole === 'student'
+                        ? 'bg-indigo-100 text-indigo-600'
+                        : 'bg-slate-100 text-slate-500'
+                      }`}
+                  >
+                    <GraduationCap className="w-5 h-5" />
+                  </div>
+                  <span
+                    className={`text-xs font-semibold ${selectedRole === 'student' ? 'text-indigo-700' : 'text-slate-600'
+                      }`}
+                  >
+                    Студент
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setSelectedRole('teacher')}
+                  className={`p-4 rounded-xl transition-all duration-300 flex flex-col items-center gap-2 border-2 ${selectedRole === 'teacher'
+                      ? 'bg-teal-50/50 border-teal-500 shadow-sm shadow-teal-500/20'
+                      : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50'
+                    }`}
+                >
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${selectedRole === 'teacher'
+                        ? 'bg-teal-100 text-teal-600'
+                        : 'bg-slate-100 text-slate-500'
+                      }`}
+                  >
+                    <User className="w-5 h-5" />
+                  </div>
+                  <span
+                    className={`text-xs font-semibold ${selectedRole === 'teacher' ? 'text-teal-700' : 'text-slate-600'
+                      }`}
+                  >
+                    Преподаватель
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Forms */}
+            <AnimatePresence mode="wait">
+              {view === 'login' ? (
+                <motion.form
+                  key="login"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ duration: 0.2 }}
+                  onSubmit={handleLogin}
+                  className="space-y-4"
+                >
+                  {/* Email */}
+                  <div>
+                    <label className="text-slate-600 text-xs font-bold mb-2 block tracking-wide">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type="email"
+                        value={loginEmail}
+                        onChange={e => setLoginEmail(e.target.value)}
+                        placeholder="student@university.edu"
+                        className={inputClass(errors.loginEmail)}
+                      />
+                    </div>
+                    {errors.loginEmail && (
+                      <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.loginEmail}</p>
+                    )}
+                  </div>
+
+                  {/* Password */}
+                  <div>
+                    <label className="text-slate-600 text-xs font-bold mb-2 block tracking-wide">
+                      Пароль
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={loginPassword}
+                        onChange={e => setLoginPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className={`${inputClass(errors.loginPassword)} pr-12`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {errors.loginPassword && (
+                      <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.loginPassword}</p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-end">
+                    <button type="button" className="text-xs font-semibold text-indigo-600 hover:text-indigo-500 transition-colors">
+                      Забыли пароль?
+                    </button>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full py-3.5 rounded-xl font-semibold text-white text-sm relative overflow-hidden transition-all shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:hover:transform-none"
+                    style={{
+                      background: 'linear-gradient(135deg, #4f46e5, #0891b2)',
+                    }}
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Входим...
+                      </span>
+                    ) : (
+                      'Войти в систему'
+                    )}
+                  </button>
+                </motion.form>
+              ) : (
+                <motion.form
+                  key="register"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.2 }}
+                  onSubmit={handleRegister}
+                  className="space-y-4"
+                >
+                  {/* Full Name */}
+                  <div>
+                    <label className="text-slate-600 text-xs font-bold mb-2 block tracking-wide">
+                      Полное имя
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type="text"
+                        value={regName}
+                        onChange={e => setRegName(e.target.value)}
+                        placeholder="Иванов Иван Иванович"
+                        className={inputClass(errors.regName)}
+                      />
+                    </div>
+                    {errors.regName && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.regName}</p>}
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="text-slate-600 text-xs font-bold mb-2 block tracking-wide">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type="email"
+                        value={regEmail}
+                        onChange={e => setRegEmail(e.target.value)}
+                        placeholder="user@university.edu"
+                        className={inputClass(errors.regEmail)}
+                      />
+                    </div>
+                    {errors.regEmail && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.regEmail}</p>}
+                  </div>
+
+                  {/* Password */}
+                  <div>
+                    <label className="text-slate-600 text-xs font-bold mb-2 block tracking-wide">
+                      Пароль
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={regPassword}
+                        onChange={e => setRegPassword(e.target.value)}
+                        placeholder="Минимум 6 символов"
+                        className={`${inputClass(errors.regPassword)} pr-12`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {errors.regPassword && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.regPassword}</p>}
+                  </div>
+
+                  {/* Confirm Password */}
+                  <div>
+                    <label className="text-slate-600 text-xs font-bold mb-2 block tracking-wide">
+                      Подтвердите пароль
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input
+                        type={showConfirm ? 'text' : 'password'}
+                        value={regConfirm}
+                        onChange={e => setRegConfirm(e.target.value)}
+                        placeholder="••••••••"
+                        className={`${inputClass(errors.regConfirm)} pr-12`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirm(!showConfirm)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                      >
+                        {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {errors.regConfirm && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.regConfirm}</p>}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full py-3.5 rounded-xl font-semibold text-white text-sm transition-all shadow-md shadow-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:hover:transform-none"
+                    style={{
+                      background: 'linear-gradient(135deg, #4f46e5, #0891b2)',
+                    }}
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Создаём аккаунт...
+                      </span>
+                    ) : (
+                      'Создать аккаунт'
+                    )}
+                  </button>
+                </motion.form>
+              )}
+            </AnimatePresence>
           </div>
-
-          {/* Forms */}
-          <AnimatePresence mode="wait">
-            {view === 'login' ? (
-              <motion.form
-                key="login"
-                initial={{ opacity: 0, x: -15 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 15 }}
-                transition={{ duration: 0.25 }}
-                onSubmit={handleLogin}
-                className="space-y-4"
-              >
-                {/* Email */}
-                <div>
-                  <label className="text-slate-300 text-xs font-medium mb-2 block uppercase tracking-wider">
-                    Email
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input
-                      type="email"
-                      value={loginEmail}
-                      onChange={e => setLoginEmail(e.target.value)}
-                      placeholder="student@university.edu"
-                      className={inputClass(errors.loginEmail)}
-                    />
-                  </div>
-                  {errors.loginEmail && (
-                    <p className="text-red-400 text-xs mt-1">{errors.loginEmail}</p>
-                  )}
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label className="text-slate-300 text-xs font-medium mb-2 block uppercase tracking-wider">
-                    Пароль
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={loginPassword}
-                      onChange={e => setLoginPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className={`${inputClass(errors.loginPassword)} pr-12`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  {errors.loginPassword && (
-                    <p className="text-red-400 text-xs mt-1">{errors.loginPassword}</p>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-end">
-                  <button type="button" className="text-xs text-violet-400 hover:text-violet-300 transition-colors">
-                    Забыли пароль?
-                  </button>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3.5 rounded-xl font-medium text-white text-sm relative overflow-hidden transition-all"
-                  style={{
-                    background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
-                    boxShadow: '0 0 25px rgba(124,58,237,0.4)',
-                  }}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      Входим...
-                    </span>
-                  ) : (
-                    'Войти в систему'
-                  )}
-                </button>
-
-                <p className="text-center text-slate-500 text-xs">
-                  Нет аккаунта?{' '}
-                  <button
-                    type="button"
-                    onClick={() => { setView('register'); setErrors({}); }}
-                    className="text-violet-400 hover:text-violet-300 transition-colors"
-                  >
-                    Зарегистрироваться
-                  </button>
-                </p>
-              </motion.form>
-            ) : (
-              <motion.form
-                key="register"
-                initial={{ opacity: 0, x: 15 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -15 }}
-                transition={{ duration: 0.25 }}
-                onSubmit={handleRegister}
-                className="space-y-4"
-              >
-                {/* Full Name */}
-                <div>
-                  <label className="text-slate-300 text-xs font-medium mb-2 block uppercase tracking-wider">
-                    Полное имя
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input
-                      type="text"
-                      value={regName}
-                      onChange={e => setRegName(e.target.value)}
-                      placeholder="Иванов Иван Иванович"
-                      className={inputClass(errors.regName)}
-                    />
-                  </div>
-                  {errors.regName && <p className="text-red-400 text-xs mt-1">{errors.regName}</p>}
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="text-slate-300 text-xs font-medium mb-2 block uppercase tracking-wider">
-                    Email
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input
-                      type="email"
-                      value={regEmail}
-                      onChange={e => setRegEmail(e.target.value)}
-                      placeholder="user@university.edu"
-                      className={inputClass(errors.regEmail)}
-                    />
-                  </div>
-                  {errors.regEmail && <p className="text-red-400 text-xs mt-1">{errors.regEmail}</p>}
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label className="text-slate-300 text-xs font-medium mb-2 block uppercase tracking-wider">
-                    Пароль
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={regPassword}
-                      onChange={e => setRegPassword(e.target.value)}
-                      placeholder="Минимум 6 символов"
-                      className={`${inputClass(errors.regPassword)} pr-12`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  {errors.regPassword && <p className="text-red-400 text-xs mt-1">{errors.regPassword}</p>}
-                </div>
-
-                {/* Confirm Password */}
-                <div>
-                  <label className="text-slate-300 text-xs font-medium mb-2 block uppercase tracking-wider">
-                    Подтвердите пароль
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                    <input
-                      type={showConfirm ? 'text' : 'password'}
-                      value={regConfirm}
-                      onChange={e => setRegConfirm(e.target.value)}
-                      placeholder="••••••••"
-                      className={`${inputClass(errors.regConfirm)} pr-12`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirm(!showConfirm)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-                    >
-                      {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  {errors.regConfirm && <p className="text-red-400 text-xs mt-1">{errors.regConfirm}</p>}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3.5 rounded-xl font-medium text-white text-sm transition-all"
-                  style={{
-                    background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
-                    boxShadow: '0 0 25px rgba(124,58,237,0.4)',
-                  }}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      Создаём аккаунт...
-                    </span>
-                  ) : (
-                    'Создать аккаунт'
-                  )}
-                </button>
-
-                <p className="text-center text-slate-500 text-xs">
-                  Уже есть аккаунт?{' '}
-                  <button
-                    type="button"
-                    onClick={() => { setView('login'); setErrors({}); }}
-                    className="text-violet-400 hover:text-violet-300 transition-colors"
-                  >
-                    Войти
-                  </button>
-                </p>
-              </motion.form>
-            )}
-          </AnimatePresence>
         </motion.div>
 
         {/* Footer */}
@@ -575,7 +479,7 @@ export function AuthScreen({ onAuth }: AuthScreenProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="text-center text-slate-600 text-xs mt-6"
+          className="text-center text-slate-500 text-sm mt-8 font-medium"
         >
           Для входа используйте данные, с которыми регистрировались
         </motion.p>

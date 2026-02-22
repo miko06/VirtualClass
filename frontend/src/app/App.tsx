@@ -50,7 +50,7 @@ export default function App() {
       case 'students':
         return (
           <div className="p-8">
-            <h2 className="text-3xl" style={{ color: '#e2e8f0' }}>Управление студентами</h2>
+            <h2 className="text-3xl text-slate-800">Управление студентами</h2>
           </div>
         );
       default:
@@ -84,13 +84,13 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen" style={{ background: '#060612' }}>
+    <div className="flex h-screen bg-slate-50 text-slate-900 font-sans">
       {/* Background orbs for main app */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div
           className="orb-1 absolute w-[500px] h-[500px] rounded-full"
           style={{
-            background: 'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 72%)',
             top: '-100px',
             left: '200px',
             filter: 'blur(60px)',
@@ -99,7 +99,7 @@ export default function App() {
         <div
           className="orb-2 absolute w-[400px] h-[400px] rounded-full"
           style={{
-            background: 'radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(6,182,212,0.06) 0%, transparent 72%)',
             bottom: '-50px',
             right: '100px',
             filter: 'blur(60px)',
@@ -108,7 +108,7 @@ export default function App() {
         <div
           className="orb-3 absolute w-[300px] h-[300px] rounded-full"
           style={{
-            background: 'radial-gradient(circle, rgba(236,72,153,0.07) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(236,72,153,0.05) 0%, transparent 72%)',
             top: '50%',
             left: '50%',
             filter: 'blur(50px)',

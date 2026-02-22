@@ -11,15 +11,9 @@ interface Material {
   duration?: string;
 }
 
-const cardStyle = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.08)',
-  backdropFilter: 'blur(10px)',
-};
-
 const typeConfig = {
   video: { icon: Video, gradient: 'linear-gradient(135deg, #ef4444, #ec4899)', glow: 'rgba(239,68,68,0.3)', label: 'Видео' },
-  document: { icon: FileText, gradient: 'linear-gradient(135deg, #06b6d4, #3b82f6)', glow: 'rgba(6,182,212,0.3)', label: 'Документ' },
+  document: { icon: FileText, gradient: 'linear-gradient(135deg, #0ea5e9, #3b82f6)', glow: 'rgba(14,165,233,0.3)', label: 'Документ' },
   slides: { icon: Book, gradient: 'linear-gradient(135deg, #8b5cf6, #6366f1)', glow: 'rgba(139,92,246,0.3)', label: 'Презентация' },
   code: { icon: FileCode, gradient: 'linear-gradient(135deg, #10b981, #059669)', glow: 'rgba(16,185,129,0.3)', label: 'Код' },
 };
@@ -37,15 +31,28 @@ export function Materials() {
   ];
 
   return (
-    <div className="p-8 min-h-screen">
-      <div className="mb-8">
-        <h2 className="text-3xl mb-1" style={{ color: '#e2e8f0' }}>Учебные материалы</h2>
-        <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
+    <div className="p-8 min-h-screen relative overflow-hidden bg-slate-50">
+      {/* Background patterns */}
+      <div
+        className="absolute inset-0 opacity-40 pointer-events-none z-0"
+        style={{
+          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
+          backgroundSize: '32px 32px'
+        }}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8 relative z-10"
+      >
+        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Учебные материалы</h2>
+        <p className="text-slate-500 font-medium text-sm">
           Все лекции, презентации и дополнительные материалы
         </p>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 relative z-10">
         {materials.map((material, index) => {
           const cfg = typeConfig[material.type];
           const Icon = cfg.icon;
@@ -53,69 +60,64 @@ export function Materials() {
           return (
             <motion.div
               key={material.id}
-              initial={{ opacity: 0, scale: 0.97 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.05 }}
-              className="rounded-2xl overflow-hidden"
-              style={cardStyle}
+              transition={{ delay: index * 0.05 + 0.1 }}
+              whileHover={{ scale: 1.02, y: -4 }}
+              className="rounded-2xl overflow-hidden bg-white shadow-lg shadow-slate-200/50 ring-1 ring-slate-100 hover:ring-indigo-100 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300 group"
             >
-              <div className="p-5">
-                <div className="flex items-start gap-4">
+              <div className="p-6">
+                <div className="flex items-start gap-5">
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: cfg.gradient, boxShadow: `0 0 15px ${cfg.glow}` }}
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-lg transition-shadow"
+                    style={{ background: cfg.gradient, boxShadow: `0 4px 12px ${cfg.glow}` }}
                   >
-                    <Icon className="w-6 h-6 text-white" />
+                    <Icon className="w-7 h-7 text-white drop-shadow-sm" />
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-base mb-1 truncate" style={{ color: '#e2e8f0', fontWeight: 600 }}>
+                    <h3 className="text-lg mb-1.5 font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors line-clamp-2">
                       {material.title}
                     </h3>
-                    <p className="text-xs mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                    <p className="text-sm font-semibold text-slate-500 mb-4 truncate">
                       {material.course}
                     </p>
 
-                    <div className="flex items-center gap-3 mb-4 flex-wrap">
+                    <div className="flex items-center gap-3 mb-5 flex-wrap">
                       <span
-                        className="px-2.5 py-1 rounded-lg text-xs"
+                        className="px-3 py-1 rounded-lg text-xs font-bold"
                         style={{
-                          background: `${cfg.glow.replace('0.3', '0.12')}`,
-                          border: `1px solid ${cfg.glow.replace('0.3', '0.25')}`,
-                          color: '#e2e8f0',
+                          background: `${cfg.glow.replace('0.3', '0.1')}`,
+                          border: `1px solid ${cfg.glow.replace('0.3', '0.2')}`,
+                          color: cfg.gradient.split(', ')[1], // Use second color of gradient for text
                         }}
                       >
                         {cfg.label}
                       </span>
-                      <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>{material.date}</span>
+                      <span className="text-xs font-bold text-slate-400">{material.date}</span>
                       {material.size && (
-                        <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>{material.size}</span>
+                        <span className="text-xs font-bold text-slate-400">{material.size}</span>
                       )}
                       {material.duration && (
-                        <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>{material.duration}</span>
+                        <span className="text-xs font-bold text-slate-400">{material.duration}</span>
                       )}
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                       <button
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-white text-xs transition-all"
+                        className="flex-1 flex justify-center items-center gap-2 px-4 py-2.5 rounded-xl text-white text-xs font-bold transition-all shadow-md active:scale-95 hover:shadow-lg"
                         style={{
                           background: cfg.gradient,
-                          boxShadow: `0 0 12px ${cfg.glow}`,
+                          boxShadow: `0 4px 12px ${cfg.glow}`,
                         }}
                       >
-                        <ExternalLink className="w-3.5 h-3.5" />
+                        <ExternalLink className="w-4 h-4" />
                         Открыть
                       </button>
                       <button
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs transition-all"
-                        style={{
-                          background: 'rgba(255,255,255,0.05)',
-                          border: '1px solid rgba(255,255,255,0.08)',
-                          color: 'rgba(255,255,255,0.6)',
-                        }}
+                        className="flex-1 flex justify-center items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-800 active:scale-95"
                       >
-                        <Download className="w-3.5 h-3.5" />
+                        <Download className="w-4 h-4" />
                         Скачать
                       </button>
                     </div>

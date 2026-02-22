@@ -1,12 +1,6 @@
 import { Users, TrendingUp, Award, BarChart3, Target } from 'lucide-react';
 import { motion } from 'motion/react';
 
-const cardStyle = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.08)',
-  backdropFilter: 'blur(10px)',
-};
-
 export function TeacherAnalytics() {
   const courseStats = [
     { course: 'Машинное обучение', students: 45, avgScore: 82, completion: 78, trend: 'up', gradient: 'linear-gradient(135deg, #7c3aed, #6366f1)', glow: 'rgba(124,58,237,0.3)' },
@@ -38,16 +32,25 @@ export function TeacherAnalytics() {
   ];
 
   return (
-    <div className="p-8 min-h-screen">
-      <div className="mb-8">
-        <h2 className="text-3xl mb-1" style={{ color: '#e2e8f0' }}>Аналитика</h2>
-        <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
+    <div className="p-8 min-h-screen relative overflow-hidden bg-slate-50">
+      {/* Background patterns */}
+      <div
+        className="absolute inset-0 opacity-40 pointer-events-none z-0"
+        style={{
+          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
+          backgroundSize: '32px 32px'
+        }}
+      />
+
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 relative z-10">
+        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Аналитика</h2>
+        <p className="text-sm font-medium text-slate-500">
           Статистика по курсам и успеваемости студентов
         </p>
-      </div>
+      </motion.div>
 
       {/* Overall Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 relative z-10">
         {overallStats.map((stat, index) => {
           const Icon = stat.icon;
           return (
@@ -56,22 +59,21 @@ export function TeacherAnalytics() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.07 }}
-              className="p-5 rounded-2xl relative overflow-hidden group"
-              style={cardStyle}
+              className="p-6 rounded-3xl bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100 relative overflow-hidden group hover:shadow-2xl transition-all duration-300"
             >
               <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                style={{ background: `radial-gradient(circle at top left, ${stat.glow}, transparent 70%)` }}
+                className="absolute -right-6 -top-6 w-24 h-24 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none blur-2xl"
+                style={{ background: stat.gradient }}
               />
               <div className="relative z-10">
                 <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center mb-4"
-                  style={{ background: stat.gradient, boxShadow: `0 0 20px ${stat.glow}` }}
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform"
+                  style={{ background: stat.gradient, boxShadow: `0 8px 20px -4px ${stat.glow}` }}
                 >
-                  <Icon className="w-5 h-5 text-white" />
+                  <Icon className="w-6 h-6 text-white" />
                 </div>
-                <div className="text-3xl mb-1" style={{ color: '#f1f5f9', fontWeight: 700 }}>{stat.value}</div>
-                <div className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{stat.label}</div>
+                <div className="text-4xl font-extrabold text-slate-800 tracking-tight mb-1">{stat.value}</div>
+                <div className="text-sm font-bold text-slate-400 uppercase tracking-widest">{stat.label}</div>
               </div>
             </motion.div>
           );
@@ -79,75 +81,75 @@ export function TeacherAnalytics() {
       </div>
 
       {/* Course Statistics */}
-      <div className="mb-8">
-        <h3 className="text-base mb-4" style={{ color: '#e2e8f0', fontWeight: 600 }}>
+      <div className="mb-10 relative z-10">
+        <h3 className="text-xl font-bold text-slate-800 tracking-tight mb-6">
           Статистика по курсам
         </h3>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {courseStats.map((stat, index) => (
             <motion.div
               key={stat.course}
-              initial={{ opacity: 0, scale: 0.97 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.08 }}
-              className="rounded-2xl overflow-hidden"
-              style={cardStyle}
+              transition={{ delay: index * 0.08 + 0.2 }}
+              className="rounded-3xl overflow-hidden bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100 hover:ring-indigo-100 hover:shadow-2xl transition-all duration-300 group"
             >
-              <div className="h-1" style={{ background: stat.gradient }} />
-              <div className="p-5">
-                <div className="flex items-start justify-between mb-4">
+              <div className="h-2 w-full transition-transform group-hover:scale-105" style={{ background: stat.gradient, transformOrigin: 'left' }} />
+              <div className="p-8">
+                <div className="flex items-start justify-between mb-8">
                   <div>
-                    <h4 className="text-base mb-1" style={{ color: '#e2e8f0', fontWeight: 600 }}>
+                    <h4 className="text-xl font-bold text-slate-800 tracking-tight mb-2 group-hover:text-indigo-600 transition-colors">
                       {stat.course}
                     </h4>
-                    <div className="flex items-center gap-2 text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                      <Users className="w-3.5 h-3.5" />
+                    <div className="flex items-center gap-2 text-sm font-bold text-slate-500">
+                      <Users className="w-4 h-4 text-slate-400" />
                       <span>{stat.students} студентов</span>
                     </div>
                   </div>
                   <div
-                    className="px-2.5 py-1.5 rounded-lg flex items-center gap-1"
+                    className="px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-sm"
                     style={{
-                      background: stat.trend === 'up' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
-                      border: stat.trend === 'up' ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(239,68,68,0.25)',
+                      background: stat.trend === 'up' ? '#ecfdf5' : '#fef2f2',
+                      border: `1px solid ${stat.trend === 'up' ? '#a7f3d0' : '#fecaca'}`,
                     }}
                   >
                     <TrendingUp
-                      className="w-3.5 h-3.5"
+                      className="w-4 h-4"
                       style={{
-                        color: stat.trend === 'up' ? '#34d399' : '#f87171',
+                        color: stat.trend === 'up' ? '#10b981' : '#ef4444',
                         transform: stat.trend === 'down' ? 'rotate(180deg)' : undefined,
                       }}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-2 gap-5 mb-8">
                   <div
-                    className="p-3 rounded-xl text-center"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+                    className="p-5 rounded-2xl text-center bg-slate-50 border border-slate-100 group-hover:border-indigo-100 transition-colors"
                   >
-                    <div className="text-xl mb-0.5" style={{ color: '#e2e8f0', fontWeight: 700 }}>{stat.avgScore}%</div>
-                    <div className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Средний балл</div>
+                    <div className="text-3xl font-extrabold text-slate-800 mb-1">{stat.avgScore}%</div>
+                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Средний балл</div>
                   </div>
                   <div
-                    className="p-3 rounded-xl text-center"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+                    className="p-5 rounded-2xl text-center bg-slate-50 border border-slate-100 group-hover:border-indigo-100 transition-colors"
                   >
-                    <div className="text-xl mb-0.5" style={{ color: '#e2e8f0', fontWeight: 700 }}>{stat.completion}%</div>
-                    <div className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Завершено</div>
+                    <div className="text-3xl font-extrabold text-slate-800 mb-1">{stat.completion}%</div>
+                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Завершено</div>
                   </div>
                 </div>
 
                 <div>
-                  <div className="flex justify-between text-xs mb-1.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                    <span>Прогресс</span>
+                  <div className="flex justify-between text-sm font-bold text-slate-500 mb-2">
+                    <span>Прогресс курса</span>
                     <span>{stat.completion}%</span>
                   </div>
-                  <div className="h-1.5 w-full rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }}>
-                    <div
-                      className="h-1.5 rounded-full"
-                      style={{ width: `${stat.completion}%`, background: stat.gradient, boxShadow: `0 0 8px ${stat.glow}` }}
+                  <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${stat.completion}%` }}
+                      transition={{ duration: 1, delay: 0.5 + index * 0.1 }}
+                      className="h-full rounded-full"
+                      style={{ background: stat.gradient, boxShadow: `0 0 10px ${stat.glow}` }}
                     />
                   </div>
                 </div>
@@ -157,65 +159,61 @@ export function TeacherAnalytics() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 relative z-10">
         {/* Difficult Topics */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="rounded-2xl p-6"
-          style={cardStyle}
+          className="rounded-3xl p-8 bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100"
         >
-          <div className="flex items-center gap-3 mb-5">
+          <div className="flex items-center gap-4 mb-8">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.3), rgba(245,158,11,0.3))' }}
+              className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg"
+              style={{ background: 'linear-gradient(135deg, #ef4444, #f59e0b)', boxShadow: '0 8px 20px -6px rgba(239,68,68,0.4)' }}
             >
-              <Target className="w-5 h-5" style={{ color: '#f87171' }} />
+              <Target className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="text-base" style={{ color: '#e2e8f0', fontWeight: 600 }}>Сложные темы</h3>
-              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>Требуют дополнительного внимания</p>
+              <h3 className="text-xl font-bold text-slate-800 tracking-tight">Отстающие темы</h3>
+              <p className="text-sm font-medium text-slate-500">Требуют дополнительного внимания</p>
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             {difficultTopics.map((topic, index) => (
               <div
                 key={index}
-                className="p-4 rounded-xl"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                className="p-5 rounded-2xl bg-slate-50 border border-slate-100 hover:border-amber-200 hover:bg-white hover:shadow-md transition-all group"
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1 pr-3">
-                    <p className="text-sm mb-0.5" style={{ color: '#e2e8f0', fontWeight: 500 }}>{topic.topic}</p>
-                    <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>{topic.course}</p>
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1 pr-4">
+                    <p className="text-base font-bold text-slate-800 mb-1 group-hover:text-amber-600 transition-colors">{topic.topic}</p>
+                    <p className="text-xs font-bold text-slate-400">{topic.course}</p>
                   </div>
                   <span
-                    className="text-xs px-2.5 py-1 rounded-lg flex-shrink-0"
+                    className="text-xs px-3 py-1.5 rounded-lg flex-shrink-0 font-bold border"
                     style={{
-                      background: topic.errorRate > 50
-                        ? 'rgba(239,68,68,0.12)'
-                        : topic.errorRate > 40
-                        ? 'rgba(245,158,11,0.12)'
-                        : 'rgba(234,179,8,0.12)',
-                      border: `1px solid ${topic.errorRate > 50 ? 'rgba(239,68,68,0.25)' : topic.errorRate > 40 ? 'rgba(245,158,11,0.25)' : 'rgba(234,179,8,0.25)'}`,
-                      color: topic.errorRate > 50 ? '#f87171' : topic.errorRate > 40 ? '#fbbf24' : '#facc15',
+                      background: topic.errorRate > 50 ? '#fef2f2' : topic.errorRate > 40 ? '#fffbeb' : '#fefce8',
+                      borderColor: topic.errorRate > 50 ? '#fecaca' : topic.errorRate > 40 ? '#fde68a' : '#fef08a',
+                      color: topic.errorRate > 50 ? '#ef4444' : topic.errorRate > 40 ? '#f59e0b' : '#eab308',
                     }}
                   >
                     {topic.errorRate}% ошибок
                   </span>
                 </div>
-                <div className="h-1.5 w-full rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }}>
-                  <div
-                    className="h-1.5 rounded-full"
+                <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${topic.errorRate}%` }}
+                    transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
+                    className="h-full rounded-full"
                     style={{
-                      width: `${topic.errorRate}%`,
                       background: topic.errorRate > 50
                         ? 'linear-gradient(90deg, #ef4444, #f97316)'
                         : topic.errorRate > 40
-                        ? 'linear-gradient(90deg, #f59e0b, #ef4444)'
-                        : 'linear-gradient(90deg, #eab308, #f59e0b)',
+                          ? 'linear-gradient(90deg, #f59e0b, #ef4444)'
+                          : 'linear-gradient(90deg, #eab308, #f59e0b)',
                     }}
                   />
                 </div>
@@ -229,37 +227,37 @@ export function TeacherAnalytics() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.45 }}
-          className="rounded-2xl p-6"
-          style={cardStyle}
+          className="rounded-3xl p-8 bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100"
         >
-          <div className="flex items-center gap-3 mb-5">
+          <div className="flex items-center gap-4 mb-8">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.3), rgba(6,182,212,0.3))' }}
+              className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg"
+              style={{ background: 'linear-gradient(135deg, #10b981, #06b6d4)', boxShadow: '0 8px 20px -6px rgba(16,185,129,0.4)' }}
             >
-              <Award className="w-5 h-5" style={{ color: '#34d399' }} />
+              <Award className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="text-base" style={{ color: '#e2e8f0', fontWeight: 600 }}>Лучшие студенты</h3>
-              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>Топ-5 по среднему баллу</p>
+              <h3 className="text-xl font-bold text-slate-800 tracking-tight">Гордость курса</h3>
+              <p className="text-sm font-medium text-slate-500">Топ-5 студентов по среднему баллу</p>
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             {topStudents.map((student, index) => (
               <div
                 key={index}
-                className="flex items-center gap-4 p-3 rounded-xl transition-all"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}
+                className="flex items-center gap-5 p-4 rounded-2xl transition-all border border-slate-100 bg-white hover:border-emerald-200 hover:shadow-md hover:-translate-y-0.5"
               >
-                <span className="text-xl">{student.badge}</span>
+                <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-2xl shadow-inner">
+                  {student.badge}
+                </div>
                 <div className="flex-1">
-                  <p className="text-sm" style={{ color: '#e2e8f0', fontWeight: 500 }}>{student.name}</p>
-                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>{student.courses} курса</p>
+                  <p className="text-base font-bold text-slate-800 mb-0.5">{student.name}</p>
+                  <p className="text-xs font-bold text-slate-400">{student.courses} курса</p>
                 </div>
                 <div className="text-right">
-                  <div className="text-base" style={{ color: '#34d399', fontWeight: 700 }}>{student.avgScore}%</div>
-                  <div className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>средний балл</div>
+                  <div className="text-xl font-extrabold text-emerald-500">{student.avgScore}%</div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">балл</div>
                 </div>
               </div>
             ))}

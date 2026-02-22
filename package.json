@@ -4,7 +4,8 @@
     "dev:frontend": "npm --prefix frontend run dev",
     "dev:backend": "docker compose up -d && docker compose logs -f backend",
     "up": "docker compose up -d",
-    "logs:backend": "docker compose logs -f backend"
+    "logs:backend": "docker compose logs -f backend",
+    "prisma:studio": "npx prisma studio --config backend/prisma.config.ts"
   },
   "dependencies": {
     "@prisma/client": "^7.4.0",

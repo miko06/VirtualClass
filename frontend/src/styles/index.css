@@ -5,50 +5,121 @@
 /* ====== Global App Styles ====== */
 body {
   font-family: 'Space Grotesk', sans-serif;
-  background: #060612;
-  color: #e2e8f0;
+  background: #f8fafc;
+  /* bg-slate-50 */
+  color: #0f172a;
+  /* text-slate-900 */
 }
 
 /* ====== Orb Animations ====== */
 @keyframes orbFloat1 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -40px) scale(1.05); }
-  66% { transform: translate(-20px, 20px) scale(0.95); }
-}
-@keyframes orbFloat2 {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(-25px, 35px) scale(1.08); }
-  66% { transform: translate(35px, -15px) scale(0.92); }
-}
-@keyframes orbFloat3 {
-  0%, 100% { transform: translate(-50%, 0) scale(1); }
-  50% { transform: translate(-50%, -30px) scale(1.1); }
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -40px) scale(1.05);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
 }
 
-.orb-1 { animation: orbFloat1 12s ease-in-out infinite; }
-.orb-2 { animation: orbFloat2 15s ease-in-out infinite; }
-.orb-3 { animation: orbFloat3 10s ease-in-out infinite; }
+@keyframes orbFloat2 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(-25px, 35px) scale(1.08);
+  }
+
+  66% {
+    transform: translate(35px, -15px) scale(0.92);
+  }
+}
+
+@keyframes orbFloat3 {
+
+  0%,
+  100% {
+    transform: translate(-50%, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-50%, -30px) scale(1.1);
+  }
+}
+
+.orb-1 {
+  animation: orbFloat1 12s ease-in-out infinite;
+}
+
+.orb-2 {
+  animation: orbFloat2 15s ease-in-out infinite;
+}
+
+.orb-3 {
+  animation: orbFloat3 10s ease-in-out infinite;
+}
 
 /* ====== Shimmer animation ====== */
 @keyframes shimmer {
-  0% { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
 }
 
 /* ====== RGB gradient border pulse ====== */
 @keyframes borderGlow {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 /* ====== Sidebar nav glow ====== */
 @keyframes navGlow {
-  0%, 100% { box-shadow: 0 0 10px rgba(139,92,246,0.3); }
-  50% { box-shadow: 0 0 20px rgba(139,92,246,0.6); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+  }
 }
 
 /* ====== Scrollbar Styling ====== */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.3); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(139,92,246,0.5); }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
+}

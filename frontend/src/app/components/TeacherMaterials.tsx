@@ -2,33 +2,6 @@ import { useState } from 'react';
 import { Upload, FileText, Link as LinkIcon, Video, File, Check } from 'lucide-react';
 import { motion } from 'motion/react';
 
-const cardStyle = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.08)',
-  backdropFilter: 'blur(10px)',
-};
-
-const inputStyle = {
-  background: 'rgba(255,255,255,0.04)',
-  border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: '12px',
-  color: '#e2e8f0',
-  width: '100%',
-  padding: '12px 16px',
-  outline: 'none',
-  fontSize: '14px',
-};
-
-const labelStyle = {
-  color: 'rgba(255,255,255,0.6)',
-  fontSize: '12px',
-  fontWeight: 500,
-  textTransform: 'uppercase' as const,
-  letterSpacing: '0.05em',
-  marginBottom: '8px',
-  display: 'block',
-};
-
 export function TeacherMaterials() {
   const [selectedCourse, setSelectedCourse] = useState('');
   const [uploadMethod, setUploadMethod] = useState<'file' | 'url' | 'text'>('file');
@@ -72,33 +45,50 @@ export function TeacherMaterials() {
   ];
 
   return (
-    <div className="p-8 min-h-screen">
-      <div className="mb-8">
-        <h2 className="text-3xl mb-1" style={{ color: '#e2e8f0' }}>Управление материалами</h2>
-        <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
+    <div className="p-8 min-h-screen relative overflow-hidden bg-slate-50">
+      {/* Background patterns */}
+      <div
+        className="absolute inset-0 opacity-40 pointer-events-none z-0"
+        style={{
+          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
+          backgroundSize: '32px 32px'
+        }}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8 relative z-10"
+      >
+        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Управление материалами</h2>
+        <p className="text-sm font-medium text-slate-500">
           Загружайте лекции, документы и другие учебные материалы
         </p>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
         {/* Upload Form */}
         <div className="lg:col-span-2">
-          <div className="rounded-2xl p-6 mb-6" style={cardStyle}>
-            <h3 className="text-base mb-5" style={{ color: '#e2e8f0', fontWeight: 600 }}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="rounded-3xl p-8 bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100"
+          >
+            <h3 className="text-xl font-bold text-slate-800 tracking-tight mb-6">
               Загрузить новый материал
             </h3>
 
             {/* Course Selection */}
-            <div className="mb-5">
-              <label style={labelStyle}>Выберите курс</label>
+            <div className="mb-6">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Выберите курс</label>
               <select
                 value={selectedCourse}
                 onChange={(e) => setSelectedCourse(e.target.value)}
-                style={{ ...inputStyle, appearance: 'none' }}
+                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 font-medium rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-shadow appearance-none"
               >
-                <option value="" style={{ background: '#0f0f1e' }}>Выберите курс...</option>
+                <option value="">Выберите курс...</option>
                 {courses.map((course) => (
-                  <option key={course} value={course} style={{ background: '#0f0f1e' }}>
+                  <option key={course} value={course}>
                     {course}
                   </option>
                 ))}
@@ -106,37 +96,20 @@ export function TeacherMaterials() {
             </div>
 
             {/* Upload Method */}
-            <div className="mb-5">
-              <label style={labelStyle}>Способ загрузки</label>
-              <div className="grid grid-cols-3 gap-3">
+            <div className="mb-6">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Способ загрузки</label>
+              <div className="grid grid-cols-3 gap-4">
                 {uploadMethods.map(({ id, icon: Icon, label }) => (
                   <button
                     key={id}
                     onClick={() => setUploadMethod(id)}
-                    className="p-4 rounded-xl transition-all duration-200 flex flex-col items-center gap-2"
-                    style={
-                      uploadMethod === id
-                        ? {
-                            background: 'rgba(139,92,246,0.15)',
-                            border: '1px solid rgba(139,92,246,0.4)',
-                            boxShadow: '0 0 15px rgba(139,92,246,0.12)',
-                          }
-                        : {
-                            background: 'rgba(255,255,255,0.03)',
-                            border: '1px solid rgba(255,255,255,0.07)',
-                          }
-                    }
+                    className={`p-4 rounded-xl flex flex-col items-center gap-3 transition-all border-2 ${uploadMethod === id
+                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm'
+                        : 'border-slate-100 bg-white text-slate-500 hover:border-indigo-200 hover:bg-slate-50'
+                      }`}
                   >
-                    <Icon
-                      className="w-5 h-5"
-                      style={{ color: uploadMethod === id ? '#c4b5fd' : 'rgba(255,255,255,0.4)' }}
-                    />
-                    <span
-                      className="text-xs"
-                      style={{ color: uploadMethod === id ? '#c4b5fd' : 'rgba(255,255,255,0.4)' }}
-                    >
-                      {label}
-                    </span>
+                    <Icon className="w-6 h-6" />
+                    <span className="text-sm font-bold">{label}</span>
                   </button>
                 ))}
               </div>
@@ -144,35 +117,26 @@ export function TeacherMaterials() {
 
             {/* Upload Area */}
             {uploadMethod === 'file' && (
-              <div className="mb-5">
-                <label style={labelStyle}>Загрузить файл</label>
+              <div className="mb-6">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Загрузить файл</label>
                 <div
-                  className="rounded-xl p-8 text-center transition-all cursor-pointer"
-                  style={{
-                    border: '2px dashed rgba(139,92,246,0.3)',
-                    background: 'rgba(139,92,246,0.04)',
-                  }}
+                  className="rounded-2xl p-10 text-center transition-all cursor-pointer border-2 border-dashed border-indigo-200 bg-indigo-50/50 hover:bg-indigo-50 hover:border-indigo-400 group"
                 >
-                  <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(99,102,241,0.3))',
-                    }}
-                  >
-                    <Upload className="w-7 h-7" style={{ color: '#c4b5fd' }} />
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-white shadow-md shadow-indigo-500/10 group-hover:scale-110 transition-transform">
+                    <Upload className="w-8 h-8 text-indigo-500" />
                   </div>
-                  <p className="text-sm mb-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                  <p className="text-base font-bold text-indigo-900 mb-1">
                     Перетащите файл или нажмите для выбора
                   </p>
-                  <p className="text-xs mb-4" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                  <p className="text-sm font-medium text-indigo-500/70 mb-6">
                     PDF, DOCX, PPT, MP4 (макс. 500 МБ)
                   </p>
                   <label
                     htmlFor="file-upload"
-                    className="inline-block px-5 py-2 rounded-xl text-sm cursor-pointer transition-all text-white"
+                    className="inline-block px-6 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
                     style={{
-                      background: 'linear-gradient(135deg, #7c3aed, #6366f1)',
-                      boxShadow: '0 0 15px rgba(124,58,237,0.35)',
+                      background: 'linear-gradient(135deg, #4f46e5, #0ea5e9)',
+                      boxShadow: '0 8px 20px -6px rgba(79,70,229,0.4)',
                     }}
                   >
                     Выбрать файл
@@ -183,38 +147,42 @@ export function TeacherMaterials() {
             )}
 
             {uploadMethod === 'url' && (
-              <div className="mb-5">
-                <label style={labelStyle}>URL материала</label>
+              <div className="mb-6">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">URL материала</label>
                 <input
                   type="url"
                   placeholder="https://example.com/video-lecture"
-                  style={inputStyle}
+                  className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 font-medium rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-shadow"
                 />
               </div>
             )}
 
             {uploadMethod === 'text' && (
-              <div className="mb-5">
-                <label style={labelStyle}>Текст материала</label>
+              <div className="mb-6">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Текст материала</label>
                 <textarea
                   placeholder="Введите или вставьте текст лекции..."
-                  style={{ ...inputStyle, height: '160px', resize: 'none' }}
+                  className="w-full h-40 px-4 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 font-medium rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-shadow resize-none"
                 />
               </div>
             )}
 
             {/* Title */}
-            <div className="mb-4">
-              <label style={labelStyle}>Название материала</label>
-              <input type="text" placeholder="Введите название..." style={inputStyle} />
+            <div className="mb-6">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Название материала</label>
+              <input
+                type="text"
+                placeholder="Например: Лекция 1: Введение"
+                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 font-bold rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-shadow"
+              />
             </div>
 
             {/* Description */}
-            <div className="mb-5">
-              <label style={labelStyle}>Описание (опционально)</label>
+            <div className="mb-8">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Описание (опционально)</label>
               <textarea
                 placeholder="Краткое описание материала..."
-                style={{ ...inputStyle, height: '80px', resize: 'none' }}
+                className="w-full h-24 px-4 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 font-medium rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-shadow resize-none"
               />
             </div>
 
@@ -222,74 +190,75 @@ export function TeacherMaterials() {
             <button
               onClick={handleUpload}
               disabled={!selectedCourse || isUploading}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl text-white text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl text-white text-base font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg active:scale-95"
               style={{
                 background: uploadSuccess
                   ? 'linear-gradient(135deg, #10b981, #059669)'
-                  : 'linear-gradient(135deg, #7c3aed, #6366f1)',
+                  : 'linear-gradient(135deg, #4f46e5, #0ea5e9)',
                 boxShadow: uploadSuccess
-                  ? '0 0 20px rgba(16,185,129,0.35)'
-                  : '0 0 20px rgba(124,58,237,0.35)',
+                  ? '0 8px 20px -6px rgba(16,185,129,0.4)'
+                  : '0 8px 20px -6px rgba(79,70,229,0.4)',
               }}
             >
               {isUploading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Загрузка...
                 </>
               ) : uploadSuccess ? (
                 <>
-                  <Check className="w-4 h-4" />
+                  <Check className="w-5 h-5" />
                   Успешно загружено!
                 </>
               ) : (
                 <>
-                  <Upload className="w-4 h-4" />
-                  Загрузить материал
+                  <Upload className="w-5 h-5" />
+                  Опубликовать материал
                 </>
               )}
             </button>
-          </div>
+          </motion.div>
         </div>
 
         {/* Recent Uploads */}
         <div className="lg:col-span-1">
-          <div className="rounded-2xl p-6" style={cardStyle}>
-            <h3 className="text-base mb-5" style={{ color: '#e2e8f0', fontWeight: 600 }}>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="rounded-3xl p-6 bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100"
+          >
+            <h3 className="text-lg font-bold text-slate-800 tracking-tight mb-6">
               Недавние загрузки
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {recentUploads.map((upload, index) => {
                 const Icon = getTypeIcon(upload.type);
                 return (
                   <motion.div
                     key={upload.id}
-                    initial={{ opacity: 0, x: 15 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="p-3 rounded-xl transition-all cursor-pointer"
-                    style={{
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                    }}
+                    whileHover={{ scale: 1.02 }}
+                    className="p-4 rounded-2xl transition-all cursor-pointer bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-md hover:bg-white group"
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-4">
                       <div
-                        className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                        className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm transition-transform group-hover:scale-110"
                         style={{
-                          background: 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(99,102,241,0.25))',
+                          background: 'linear-gradient(135deg, #818cf8, #a78bfa)',
                         }}
                       >
-                        <Icon className="w-4 h-4" style={{ color: '#c4b5fd' }} />
+                        <Icon className="w-5 h-5 text-white" />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm truncate" style={{ color: '#e2e8f0', fontWeight: 500 }}>
+                      <div className="flex-1 min-w-0 py-1">
+                        <p className="text-sm font-bold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
                           {upload.title}
                         </p>
-                        <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>{upload.course}</p>
-                        <div className="flex items-center gap-2 mt-1 text-xs" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                        <p className="text-xs font-semibold text-slate-500 mt-0.5">{upload.course}</p>
+                        <div className="flex items-center gap-2 mt-2 text-xs font-bold text-slate-400">
                           <span>{upload.date}</span>
-                          <span>•</span>
+                          <span className="w-1 h-1 rounded-full bg-slate-300" />
                           <span>{upload.size}</span>
                         </div>
                       </div>
@@ -298,7 +267,7 @@ export function TeacherMaterials() {
                 );
               })}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
