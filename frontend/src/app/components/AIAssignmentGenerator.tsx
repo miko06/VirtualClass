@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, FileText, Link as LinkIcon, Sparkles, Loader, CheckCircle } from 'lucide-react';
+import { Upload, FileText, Link as LinkIcon, Sparkles, Loader, CheckCircle, Clock } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export function AIAssignmentGenerator() {
@@ -102,8 +102,8 @@ export function AIAssignmentGenerator() {
                       key={id}
                       onClick={() => setUploadMethod(id)}
                       className={`p-4 rounded-xl flex flex-col items-center gap-3 transition-all border-2 ${uploadMethod === id
-                          ? 'border-indigo-500 bg-indigo-50 shadow-sm text-indigo-700'
-                          : 'border-slate-100 bg-slate-50 hover:border-indigo-200 text-slate-500 hover:text-slate-800'
+                        ? 'border-indigo-500 bg-indigo-50 shadow-sm text-indigo-700'
+                        : 'border-slate-100 bg-slate-50 hover:border-indigo-200 text-slate-500 hover:text-slate-800'
                         }`}
                     >
                       <Icon className={`w-6 h-6 ${uploadMethod === id ? 'text-indigo-600' : 'text-slate-400'}`} />
@@ -257,8 +257,8 @@ export function AIAssignmentGenerator() {
                               <div
                                 key={optIndex}
                                 className={`p-4 rounded-xl flex items-center justify-between border-2 transition-all ${optIndex === question.correctAnswer
-                                    ? 'bg-emerald-50 border-emerald-200 text-emerald-900 shadow-sm'
-                                    : 'bg-white border-slate-100 text-slate-600'
+                                  ? 'bg-emerald-50 border-emerald-200 text-emerald-900 shadow-sm'
+                                  : 'bg-white border-slate-100 text-slate-600'
                                   }`}
                               >
                                 <span className="font-semibold">{option}</span>

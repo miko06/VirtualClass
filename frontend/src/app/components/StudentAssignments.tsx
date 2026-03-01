@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock, AlertCircle, CheckCircle, ArrowRight, Upload } from 'lucide-react';
+import { Clock, AlertCircle, CheckCircle, ArrowRight, Upload, FileText } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export function StudentAssignments() {
@@ -161,8 +161,8 @@ export function StudentAssignments() {
                         <label
                           key={optIndex}
                           className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all border ${answers[question.id] === optIndex
-                              ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200 shadow-sm'
-                              : 'bg-white border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+                            ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200 shadow-sm'
+                            : 'bg-white border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
                             }`}
                         >
                           <input

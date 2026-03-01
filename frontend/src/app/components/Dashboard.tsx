@@ -1,6 +1,5 @@
-import { BookOpen, Clock, TrendingUp, Award, ArrowUpRight, Sparkles } from 'lucide-react';
-import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
-import { useRef } from 'react';
+import { BookOpen, Clock, TrendingUp, Award, ArrowRight, Calendar, Users } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface Course {
   id: string;
@@ -8,265 +7,147 @@ interface Course {
   professor: string;
   progress: number;
   nextClass: string;
-  gradient: string;
-  glow: string;
-}
-
-function StatCard({ stat, index }: { stat: any; index: number }) {
-  const Icon = stat.icon;
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x, { stiffness: 100, damping: 30 });
-  const mouseYSpring = useSpring(y, { stiffness: 100, damping: 30 });
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ['7deg', '-7deg']);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ['-7deg', '7deg']);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-    x.set(xPct);
-    y.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        rotateX,
-        rotateY,
-        transformStyle: 'preserve-3d',
-      }}
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: index * 0.08, duration: 0.4 }}
-      className="p-6 rounded-2xl relative bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100 group cursor-default"
-    >
-      <div
-        className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-        style={{
-          background: `radial-gradient(circle at top right, ${stat.glow}, transparent 70%)`,
-          transform: 'translateZ(1px)',
-        }}
-      />
-      <div style={{ transform: 'translateZ(30px)' }} className="relative z-10">
-        <div
-          className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 shadow-lg"
-          style={{ background: stat.gradient, boxShadow: `0 8px 20px -4px ${stat.glow}` }}
-        >
-          <Icon className="w-6 h-6 text-white drop-shadow-sm" />
-        </div>
-        <div className="text-4xl tracking-tight mb-1 font-extrabold text-slate-800">
-          {stat.value}
-        </div>
-        <div className="text-sm font-medium text-slate-500">{stat.label}</div>
-      </div>
-    </motion.div>
-  );
+  color: string;
+  textColor: string;
+  bgColor: string;
 }
 
 export function Dashboard() {
   const courses: Course[] = [
-    {
-      id: '1',
-      title: 'Машинное обучение',
-      professor: 'Проф. Иванов А.С.',
-      progress: 65,
-      nextClass: 'Завтра в 10:00',
-      gradient: 'linear-gradient(135deg, #4f46e5, #0ea5e9)',
-      glow: 'rgba(79,70,229,0.4)',
-    },
-    {
-      id: '2',
-      title: 'Веб-разработка',
-      professor: 'Проф. Петрова М.В.',
-      progress: 82,
-      nextClass: 'Сегодня в 14:00',
-      gradient: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
-      glow: 'rgba(236,72,153,0.4)',
-    },
-    {
-      id: '3',
-      title: 'Базы данных',
-      professor: 'Проф. Сидоров В.П.',
-      progress: 45,
-      nextClass: 'Среда в 16:00',
-      gradient: 'linear-gradient(135deg, #10b981, #14b8a6)',
-      glow: 'rgba(16,185,129,0.4)',
-    },
-    {
-      id: '4',
-      title: 'Алгоритмы',
-      professor: 'Проф. Козлова Е.А.',
-      progress: 55,
-      nextClass: 'Четверг в 12:00',
-      gradient: 'linear-gradient(135deg, #f59e0b, #f43f5e)',
-      glow: 'rgba(245,158,11,0.4)',
-    },
+    { id: '1', title: 'Машинное обучение', professor: 'Проф. Иванов А.С.', progress: 65, nextClass: 'Завтра в 10:00', color: '#4f46e5', textColor: 'text-indigo-600', bgColor: 'bg-indigo-50' },
+    { id: '2', title: 'Веб-разработка', professor: 'Проф. Петрова М.В.', progress: 82, nextClass: 'Сегодня в 14:00', color: '#db2777', textColor: 'text-pink-600', bgColor: 'bg-pink-50' },
+    { id: '3', title: 'Базы данных', professor: 'Проф. Сидоров В.П.', progress: 45, nextClass: 'Среда в 16:00', color: '#059669', textColor: 'text-emerald-600', bgColor: 'bg-emerald-50' },
+    { id: '4', title: 'Алгоритмы', professor: 'Проф. Козлова Е.А.', progress: 55, nextClass: 'Четверг в 12:00', color: '#d97706', textColor: 'text-amber-600', bgColor: 'bg-amber-50' },
   ];
 
   const stats = [
-    {
-      label: 'Активных курсов',
-      value: '4',
-      icon: BookOpen,
-      gradient: 'linear-gradient(135deg, #4f46e5, #6366f1)',
-      glow: 'rgba(79,70,229,0.3)',
-    },
-    {
-      label: 'Часов обучения',
-      value: '127',
-      icon: Clock,
-      gradient: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
-      glow: 'rgba(59,130,246,0.3)',
-    },
-    {
-      label: 'Средний прогресс',
-      value: '62%',
-      icon: TrendingUp,
-      gradient: 'linear-gradient(135deg, #10b981, #059669)',
-      glow: 'rgba(16,185,129,0.3)',
-    },
-    {
-      label: 'Заданий сдано',
-      value: '18',
-      icon: Award,
-      gradient: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-      glow: 'rgba(245,158,11,0.3)',
-    },
+    { label: 'Активных курсов', value: '4', icon: BookOpen, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    { label: 'Часов обучения', value: '127', icon: Clock, color: 'text-sky-600', bg: 'bg-sky-50' },
+    { label: 'Средний прогресс', value: '62%', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { label: 'Заданий сдано', value: '18', icon: Award, color: 'text-amber-600', bg: 'bg-amber-50' },
   ];
 
   return (
-    <div className="p-8 min-h-screen relative overflow-hidden" style={{ perspective: '1200px' }}>
-      {/* Background patterns */}
-      <div
-        className="absolute inset-0 opacity-40 pointer-events-none z-0"
-        style={{
-          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
-          backgroundSize: '32px 32px'
-        }}
-      />
-
+    <div className="p-8 pb-32 min-h-screen bg-gray-50">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-10 relative z-10"
-      >
-        <div className="flex items-center gap-3 mb-2">
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Добро пожаловать обратно!
-          </h2>
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
-          >
-            <Sparkles className="w-6 h-6 text-yellow-400" />
-          </motion.div>
-        </div>
-        <p className="text-slate-500 font-medium text-sm">
-          Вот обзор вашего прогресса и предстоящих занятий на сегодня.
-        </p>
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
+        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Добро пожаловать обратно!</h1>
+        <p className="text-gray-500 text-sm font-medium mt-1.5">Обзор прогресса и предстоящих занятий</p>
       </motion.div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 relative z-10">
-        {stats.map((stat, index) => (
-          <StatCard key={stat.label} stat={stat} index={index} />
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        {stats.map((stat, i) => {
+          const Icon = stat.icon;
+          return (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.06 }}
+              className="bg-white rounded-2xl p-5 ring-1 ring-gray-100 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${stat.bg}`}>
+                <Icon className={`w-5 h-5 ${stat.color}`} />
+              </div>
+              <div className="text-3xl font-extrabold text-gray-900 tracking-tight leading-none mb-1.5">{stat.value}</div>
+              <div className="text-sm font-medium text-gray-500">{stat.label}</div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Section title */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-bold text-gray-900">Мои курсы</h2>
+        <button className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
+          Все курсы <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Courses Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {courses.map((course, i) => (
+          <motion.div
+            key={course.id}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.07 + 0.2 }}
+            className="bg-white rounded-2xl ring-1 ring-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
+          >
+            {/* Top color strip */}
+            <div className="h-1" style={{ backgroundColor: course.color }} />
+
+            <div className="p-5">
+              {/* Header row */}
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-base font-bold text-gray-900 tracking-tight">{course.title}</h3>
+                  <p className="text-sm text-gray-500 font-medium mt-0.5">{course.professor}</p>
+                </div>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${course.bgColor}`}>
+                  <BookOpen className={`w-5 h-5 ${course.textColor}`} />
+                </div>
+              </div>
+
+              {/* Progress */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between text-xs font-semibold mb-2">
+                  <span className="text-gray-500">Прогресс</span>
+                  <span className={course.textColor}>{course.progress}%</span>
+                </div>
+                <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${course.progress}%` }}
+                    transition={{ duration: 0.9, delay: 0.5 + i * 0.08, ease: 'easeOut' }}
+                    className="h-full rounded-full"
+                    style={{ backgroundColor: course.color }}
+                  />
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between pt-1">
+                <div className="flex items-center gap-2 text-xs font-medium text-gray-400">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>{course.nextClass}</span>
+                </div>
+                <button
+                  className="text-xs font-bold px-4 py-2 rounded-lg text-white transition-all hover:opacity-90 hover:shadow-md active:scale-95"
+                  style={{ backgroundColor: course.color }}
+                >
+                  Войти
+                </button>
+              </div>
+            </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Courses Section */}
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-slate-800 tracking-tight">Мои курсы</h3>
-          <button
-            className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 transition-colors bg-indigo-50 px-4 py-2 rounded-lg"
-          >
-            Все курсы <ArrowUpRight className="w-4 h-4" />
-          </button>
+      {/* Quick Schedule Card */}
+      <div className="mt-8 bg-white rounded-2xl p-6 ring-1 ring-gray-100 shadow-sm">
+        <div className="flex items-center gap-2 mb-5">
+          <Calendar className="w-5 h-5 text-indigo-500" />
+          <h3 className="text-base font-bold text-gray-900">Расписание на неделю</h3>
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {courses.map((course, index) => (
-            <motion.div
-              key={course.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.08 + 0.2 }}
-              className="rounded-2xl overflow-hidden relative group bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100 hover:ring-indigo-200 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300"
-            >
-              {/* Top gradient bar */}
-              <div className="h-1.5 w-full" style={{ background: course.gradient }} />
-
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-5">
-                  <div className="flex-1 min-w-0 pr-4">
-                    <h4 className="text-lg mb-1 font-bold text-slate-800 tracking-tight truncate">
-                      {course.title}
-                    </h4>
-                    <p className="text-sm font-medium text-slate-500">
-                      {course.professor}
-                    </p>
-                  </div>
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg"
-                    style={{ background: course.gradient, boxShadow: `0 8px 16px -4px ${course.glow}` }}
-                  >
-                    <BookOpen className="w-6 h-6 text-white drop-shadow-sm" />
-                  </div>
-                </div>
-
-                {/* Progress */}
-                <div className="mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                  <div className="flex items-center justify-between text-sm mb-3">
-                    <span className="font-semibold text-slate-600">Прогресс</span>
-                    <span className="font-bold text-indigo-600">{course.progress}%</span>
-                  </div>
-                  <div className="w-full rounded-full h-2.5 bg-slate-200/60 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${course.progress}%` }}
-                      transition={{ duration: 1, delay: 0.5 + index * 0.1, ease: "easeOut" }}
-                      className="h-full rounded-full relative"
-                      style={{ background: course.gradient }}
-                    >
-                      <div className="absolute inset-0 bg-white/20" />
-                    </motion.div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5 text-sm font-medium text-slate-500">
-                    <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center">
-                      <Clock className="w-4 h-4" />
-                    </div>
-                    <span>{course.nextClass}</span>
-                  </div>
-                  <button
-                    className="text-sm font-bold px-4 py-2 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 text-white"
-                    style={{ background: course.gradient }}
-                  >
-                    Войти
-                  </button>
-                </div>
+        <div className="space-y-3">
+          {[
+            { day: 'Сегодня', time: '14:00', course: 'Веб-разработка', students: 38, color: '#db2777' },
+            { day: 'Завтра', time: '10:00', course: 'Машинное обучение', students: 45, color: '#4f46e5' },
+            { day: 'Среда', time: '16:00', course: 'Базы данных', students: 52, color: '#059669' },
+          ].map((item) => (
+            <div key={item.course} className="flex items-center gap-4 p-3.5 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
+              <div className="w-1 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{item.course}</p>
+                <p className="text-xs text-gray-400 font-medium mt-0.5">{item.day} в {item.time}</p>
               </div>
-            </motion.div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-400">
+                <Users className="w-3.5 h-3.5" />
+                <span>{item.students}</span>
+              </div>
+            </div>
           ))}
         </div>
       </div>

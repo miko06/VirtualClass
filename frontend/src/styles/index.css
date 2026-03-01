@@ -1,14 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
 
 /* ====== Global App Styles ====== */
 body {
-  font-family: 'Space Grotesk', sans-serif;
-  background: #f8fafc;
-  /* bg-slate-50 */
-  color: #0f172a;
-  /* text-slate-900 */
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  background: #f9fafb;
+  color: #111827;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ====== Orb Animations ====== */
