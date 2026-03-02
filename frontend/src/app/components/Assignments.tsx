@@ -1,5 +1,6 @@
 import { CheckCircle, Clock, AlertCircle, Upload } from 'lucide-react';
 import { motion } from 'motion/react';
+import { ThemeSquaresBackground } from './ThemeSquaresBackground';
 
 interface Assignment {
   id: string;
@@ -38,15 +39,8 @@ export function Assignments() {
   ];
 
   return (
-    <div className="p-8 min-h-screen relative overflow-hidden bg-slate-50">
-      {/* Background patterns */}
-      <div
-        className="absolute inset-0 opacity-40 pointer-events-none z-0"
-        style={{
-          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
-          backgroundSize: '32px 32px'
-        }}
-      />
+    <div className="legacy-theme-screen p-8 min-h-screen relative overflow-hidden bg-slate-50">
+      <ThemeSquaresBackground />
 
       <motion.div
         initial={{ opacity: 0, y: -10 }}

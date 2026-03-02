@@ -1,5 +1,6 @@
 import { Mail, Phone, MapPin, Calendar, Award, BookOpen, TrendingUp, Edit2 } from 'lucide-react';
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
+import { ThemeSquaresBackground } from './ThemeSquaresBackground';
 import { useRef } from 'react';
 
 function StatCard({ stat, index }: { stat: any; index: number }) {
@@ -107,26 +108,8 @@ export function Profile() {
   ];
 
   return (
-    <div className="p-8 min-h-screen relative overflow-hidden bg-slate-50">
-      {/* Background patterns */}
-      <div
-        className="absolute inset-0 opacity-40 pointer-events-none z-0"
-        style={{
-          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
-          backgroundSize: '32px 32px'
-        }}
-      />
-
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8 relative z-10 flex justify-between items-end"
-      >
-        <div>
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Профиль</h2>
-          <p className="text-slate-500 font-medium text-sm">Ваша информация и академические достижения</p>
-        </div>
-      </motion.div>
+    <div className="legacy-theme-screen p-8 min-h-screen relative overflow-hidden bg-slate-50">
+      <ThemeSquaresBackground />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10" style={{ perspective: '1200px' }}>
         {/* Left Column */}
@@ -135,9 +118,9 @@ export function Profile() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="rounded-3xl p-8 bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100 flex flex-col items-center text-center relative overflow-hidden"
+            className="rounded-3xl p-8 bg-gradient-to-b from-[#15284a] via-[#1a1f2b] to-[#181d28] shadow-2xl shadow-indigo-500/15 ring-1 ring-[#2a3348] flex flex-col items-center text-center relative overflow-hidden"
           >
-            <div className="absolute top-0 left-0 w-full h-32" style={{ background: 'linear-gradient(135deg, #f1f5f9, #e2e8f0)' }} />
+            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-[#27467a] to-[#15284a]" />
 
             <div
               className="w-32 h-32 rounded-3xl mx-auto mb-5 flex items-center justify-center relative z-10 shadow-2xl shadow-indigo-500/30 border-4 border-white"
@@ -149,20 +132,20 @@ export function Profile() {
             </div>
 
             <div className="relative z-10 w-full">
-              <h3 className="text-2xl font-bold text-slate-900 tracking-tight mb-1">
+              <h3 className="text-2xl font-bold text-slate-100 tracking-tight mb-1">
                 {studentInfo.name}
               </h3>
               <p className="text-sm font-semibold text-slate-400 mb-6 uppercase tracking-wider">
                 ID: {studentInfo.studentId}
               </p>
 
-              <div className="space-y-4 text-left mb-8 bg-slate-50 p-5 rounded-2xl border border-slate-100">
+              <div className="space-y-4 text-left mb-8 bg-[#101827]/75 p-5 rounded-2xl border border-[#2a3348]">
                 {contactItems.map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-4 text-sm font-medium">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-4 h-4 text-indigo-500" />
+                    <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                      <Icon className="w-4 h-4 text-indigo-300" />
                     </div>
-                    <span className="text-slate-600 truncate">{text}</span>
+                    <span className="text-slate-300 truncate">{text}</span>
                   </div>
                 ))}
               </div>
@@ -259,10 +242,7 @@ export function Profile() {
             className="rounded-3xl p-7 bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100"
           >
             <h3 className="text-lg font-bold text-slate-800 tracking-tight mb-5">Активность</h3>
-            <div
-              className="h-48 rounded-2xl flex items-center justify-center relative overflow-hidden"
-              style={{ background: 'linear-gradient(to right, #f8fafc, #f1f5f9)', border: '1px dashed #cbd5e1' }}
-            >
+            <div className="h-48 rounded-2xl flex items-center justify-center relative overflow-hidden bg-gradient-to-r from-slate-50 to-slate-100 border border-dashed border-slate-300 dark:from-slate-900 dark:to-slate-800 dark:border-slate-700">
               <motion.div
                 animate={{ backgroundPosition: ['0% center', '200% center'] }}
                 transition={{ repeat: Infinity, duration: 20, ease: 'linear' }}

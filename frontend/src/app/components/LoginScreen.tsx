@@ -1,5 +1,6 @@
 import { UserCircle, GraduationCap } from 'lucide-react';
 import { motion } from 'motion/react';
+import { ThemeSquaresBackground } from './ThemeSquaresBackground';
 
 interface LoginScreenProps {
   onRoleSelect: (role: 'teacher' | 'student') => void;
@@ -7,11 +8,12 @@ interface LoginScreenProps {
 
 export function LoginScreen({ onRoleSelect }: LoginScreenProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-[#0f1115] dark:via-[#141824] dark:to-[#101421] flex items-center justify-center p-4">
+      <ThemeSquaresBackground />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl w-full"
+        className="max-w-4xl w-full relative z-10"
       >
         <div className="text-center mb-12">
           <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-6 flex items-center justify-center">

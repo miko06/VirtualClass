@@ -6,10 +6,124 @@
 /* ====== Global App Styles ====== */
 body {
   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-  background: #f9fafb;
-  color: #111827;
+  background: var(--background);
+  color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Legacy screens without explicit dark:* utilities */
+.dark .legacy-theme-screen.bg-white {
+  background-color: #1c1e24 !important;
+}
+
+.dark .legacy-theme-screen.bg-slate-50,
+.dark .legacy-theme-screen.bg-gray-50 {
+  background-color: #151922 !important;
+}
+
+.dark .legacy-theme-screen.bg-slate-100,
+.dark .legacy-theme-screen.bg-gray-100 {
+  background-color: #242a35 !important;
+}
+
+.dark .legacy-theme-screen .bg-white {
+  background-color: #1c1e24 !important;
+}
+
+.dark .legacy-theme-screen .bg-slate-50,
+.dark .legacy-theme-screen .bg-gray-50 {
+  background-color: #151922 !important;
+}
+
+.dark .legacy-theme-screen .bg-slate-100,
+.dark .legacy-theme-screen .bg-gray-100 {
+  background-color: #242a35 !important;
+}
+
+.dark .legacy-theme-screen .bg-slate-50\/50 {
+  background-color: rgba(36, 42, 53, 0.55) !important;
+}
+
+.dark .legacy-theme-screen .text-slate-900,
+.dark .legacy-theme-screen .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+.dark .legacy-theme-screen .text-slate-800,
+.dark .legacy-theme-screen .text-gray-800 {
+  color: #e2e8f0 !important;
+}
+
+.dark .legacy-theme-screen .text-slate-700,
+.dark .legacy-theme-screen .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+.dark .legacy-theme-screen .text-slate-600,
+.dark .legacy-theme-screen .text-gray-600 {
+  color: #b6c2d3 !important;
+}
+
+.dark .legacy-theme-screen .text-slate-500,
+.dark .legacy-theme-screen .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+.dark .legacy-theme-screen .text-slate-400,
+.dark .legacy-theme-screen .text-gray-400 {
+  color: #64748b !important;
+}
+
+.dark .legacy-theme-screen .border-slate-100,
+.dark .legacy-theme-screen .border-gray-100 {
+  border-color: rgba(148, 163, 184, 0.16) !important;
+}
+
+.dark .legacy-theme-screen .border-slate-200,
+.dark .legacy-theme-screen .border-gray-200 {
+  border-color: rgba(148, 163, 184, 0.24) !important;
+}
+
+.dark .legacy-theme-screen .ring-slate-100 {
+  --tw-ring-color: rgba(148, 163, 184, 0.16) !important;
+}
+
+.dark .legacy-theme-screen .shadow-slate-200\/50 {
+  --tw-shadow-color: rgba(2, 6, 23, 0.55) !important;
+}
+
+.dark .legacy-theme-screen .bg-indigo-50 {
+  background-color: rgba(99, 102, 241, 0.18) !important;
+}
+
+.dark .legacy-theme-screen .border-indigo-100 {
+  border-color: rgba(99, 102, 241, 0.32) !important;
+}
+
+.dark .legacy-theme-screen .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.18) !important;
+}
+
+.dark .legacy-theme-screen .border-emerald-200 {
+  border-color: rgba(16, 185, 129, 0.32) !important;
+}
+
+.dark .legacy-theme-screen .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.18) !important;
+}
+
+.dark .legacy-theme-screen .border-amber-200 {
+  border-color: rgba(245, 158, 11, 0.32) !important;
+}
+
+.dark .legacy-theme-screen .bg-rose-50 {
+  background-color: rgba(244, 63, 94, 0.16) !important;
+}
+
+.dark .legacy-theme-screen .border-rose-200 {
+  border-color: rgba(244, 63, 94, 0.3) !important;
 }
 
 /* ====== Orb Animations ====== */

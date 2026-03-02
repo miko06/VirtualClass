@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Clock, AlertCircle, CheckCircle, ArrowRight, Upload, FileText } from 'lucide-react';
 import { motion } from 'motion/react';
+import { ThemeSquaresBackground } from './ThemeSquaresBackground';
 
 export function StudentAssignments() {
   const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
@@ -86,15 +87,8 @@ export function StudentAssignments() {
 
   if (selectedAssignment) {
     return (
-      <div className="p-8 min-h-screen bg-slate-50 relative overflow-hidden">
-        {/* Background patterns */}
-        <div
-          className="absolute inset-0 opacity-40 pointer-events-none z-0"
-          style={{
-            backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
-            backgroundSize: '32px 32px'
-          }}
-        />
+      <div className="legacy-theme-screen p-8 min-h-screen bg-slate-50 relative overflow-hidden">
+        <ThemeSquaresBackground />
 
         <div className="relative z-10 max-w-4xl mx-auto">
           <button
@@ -221,26 +215,10 @@ export function StudentAssignments() {
   }
 
   return (
-    <div className="p-8 min-h-screen relative overflow-hidden bg-slate-50">
-      {/* Background patterns */}
-      <div
-        className="absolute inset-0 opacity-40 pointer-events-none z-0"
-        style={{
-          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
-          backgroundSize: '32px 32px'
-        }}
-      />
+    <div className="legacy-theme-screen p-8 min-h-screen relative overflow-hidden bg-slate-50">
+      <ThemeSquaresBackground />
 
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8 relative z-10"
-      >
-        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Задания</h2>
-        <p className="text-slate-500 font-medium text-sm">Ваши текущие и выполненные задания</p>
-      </motion.div>
-
-      <div className="space-y-5 relative z-10 max-w-5xl">
+      <div className="space-y-5 relative z-10 max-w-5xl mx-auto w-full">
         {assignments.map((assignment, index) => {
           const sc = statusConfig[assignment.status] ?? statusConfig.pending;
           return (

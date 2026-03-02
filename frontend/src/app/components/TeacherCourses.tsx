@@ -1,5 +1,6 @@
 import { Plus, BookOpen, Users, Edit, Trash2, Settings } from 'lucide-react';
 import { motion } from 'motion/react';
+import { ThemeSquaresBackground } from './ThemeSquaresBackground';
 
 export function TeacherCourses() {
   const courses = [
@@ -50,15 +51,8 @@ export function TeacherCourses() {
   ];
 
   return (
-    <div className="p-8 min-h-screen relative overflow-hidden bg-slate-50">
-      {/* Background patterns */}
-      <div
-        className="absolute inset-0 opacity-40 pointer-events-none z-0"
-        style={{
-          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
-          backgroundSize: '32px 32px'
-        }}
-      />
+    <div className="legacy-theme-screen p-8 min-h-screen relative overflow-hidden bg-slate-50">
+      <ThemeSquaresBackground />
 
       <div className="flex items-center justify-between mb-8 relative z-10">
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Upload, FileText, Link as LinkIcon, Sparkles, Loader, CheckCircle, Clock } from 'lucide-react';
 import { motion } from 'motion/react';
+import { ThemeSquaresBackground } from './ThemeSquaresBackground';
 
 export function AIAssignmentGenerator() {
   const [selectedCourse, setSelectedCourse] = useState('');
@@ -50,15 +51,8 @@ export function AIAssignmentGenerator() {
     type === 'multiple-choice' ? 'Выбор варианта' : type === 'short-answer' ? 'Краткий ответ' : 'Практика';
 
   return (
-    <div className="p-8 min-h-screen relative overflow-hidden bg-slate-50">
-      {/* Background patterns */}
-      <div
-        className="absolute inset-0 opacity-40 pointer-events-none z-0"
-        style={{
-          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
-          backgroundSize: '32px 32px'
-        }}
-      />
+    <div className="legacy-theme-screen p-8 min-h-screen relative overflow-hidden bg-slate-50">
+      <ThemeSquaresBackground />
 
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 relative z-10 w-full max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-2">

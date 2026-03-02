@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Send, Bot, User, Sparkles, BookOpen, FileText, Calculator } from 'lucide-react';
 import { motion } from 'motion/react';
+import { ThemeSquaresBackground } from './ThemeSquaresBackground';
 
 interface Message {
   id: string;
@@ -58,31 +59,8 @@ export function AIAssistant() {
   };
 
   return (
-    <div className="p-8 h-full flex flex-col relative overflow-hidden bg-slate-50">
-      {/* Background patterns */}
-      <div
-        className="absolute inset-0 opacity-40 pointer-events-none z-0"
-        style={{
-          backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)',
-          backgroundSize: '32px 32px'
-        }}
-      />
-
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8 relative z-10"
-      >
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #4f46e5, #0ea5e9)' }}>
-            <Sparkles className="w-5 h-5 text-white" />
-          </div>
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">ИИ Помощник</h2>
-        </div>
-        <p className="text-slate-500 font-medium text-sm ml-13 pl-1">
-          Задайте любой вопрос по учебным материалам
-        </p>
-      </motion.div>
+    <div className="legacy-theme-screen p-8 h-full flex flex-col relative overflow-hidden bg-slate-50">
+      <ThemeSquaresBackground />
 
       {/* Quick Actions */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 relative z-10">
