@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { ThemeSquaresBackground } from './ThemeSquaresBackground';
 import { classesApi, ClassItem } from '../../api/client';
 import type { User } from '../../api/client';
+import { CourseDetails } from './CourseDetails';
 
 const COLORS = [
   { color: '#4f46e5', textColor: 'text-indigo-600', bgColor: 'bg-indigo-50' },
@@ -21,6 +22,7 @@ export function Courses({ currentUser }: CoursesProps) {
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<ClassItem | null>(null);
 
   useEffect(() => {
     if (!currentUser?.id) {
@@ -33,6 +35,10 @@ export function Courses({ currentUser }: CoursesProps) {
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [currentUser?.id]);
+
+  if (selectedCourse) {
+    return <CourseDetails course={selectedCourse} onBack={() => setSelectedCourse(null)} />;
+  }
 
   return (
     <div className="legacy-theme-screen p-8 pb-32 min-h-screen relative overflow-hidden bg-gray-50 dark:bg-[#0f1115] transition-colors duration-200">
@@ -124,6 +130,7 @@ export function Courses({ currentUser }: CoursesProps) {
 
                     <div className="flex gap-2.5 mt-auto pt-1">
                       <button
+                        onClick={() => setSelectedCourse(cls)}
                         className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 hover:shadow-md hover:-translate-y-0.5 active:scale-95"
                         style={{ backgroundColor: palette.color }}
                       >
