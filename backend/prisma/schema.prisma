@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,10 +7,53 @@ datasource db {
 }
 
 model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  password      String
+  name          String?
+  firstName     String?
+  lastName      String?
+  group         String?
+  specialtyCode String?
+  role          String   @default("student")
+  createdAt     DateTime @default(now())
+
+  // Relations
+  taughtDisciplines Discipline[] @relation("TeacherDisciplines")
+  taughtClasses     Class[]      @relation("TeacherClasses")
+  enrollments       Enrollment[] @relation("StudentEnrollments")
+}
+
+model Discipline {
   id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String?
-  role      String   @default("student")
+  name      String
+  credits   Int      @default(5)
+  teacherId Int
+  teacher   User     @relation("TeacherDisciplines", fields: [teacherId], references: [id])
+  classes   Class[]
   createdAt DateTime @default(now())
+}
+
+model Class {
+  id           Int        @id @default(autoincrement())
+  name         String
+  description  String?
+  teacherId    Int
+  disciplineId Int?
+  semester     String?
+  teacher      User       @relation("TeacherClasses", fields: [teacherId], references: [id])
+  discipline   Discipline? @relation(fields: [disciplineId], references: [id])
+  enrollments  Enrollment[]
+  createdAt    DateTime   @default(now())
+}
+
+model Enrollment {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  classId   Int
+  student   User     @relation("StudentEnrollments", fields: [studentId], references: [id])
+  class     Class    @relation(fields: [classId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, classId])
 }

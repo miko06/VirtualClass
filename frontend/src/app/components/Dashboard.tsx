@@ -94,19 +94,19 @@ export function Dashboard({ user }: DashboardProps) {
           <Card className="p-8 bg-white/95 dark:bg-[#1a1f2b] border-gray-200 dark:border-[#2a3348] text-slate-900 dark:text-slate-100 shadow-xl">
             <h3 className="text-2xl font-bold">Мои курсы</h3>
             <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-              4 активных курса: Машинное обучение, Веб-разработка, Базы данных и Алгоритмы.
+              5 активных курсов: Блокчейн технологии, Программирование мобильных устройств, ...
             </p>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              Средний прогресс по предметам: 62%.
+              Студент группы ИС-37.
             </p>
           </Card>
           <Card className="p-8 bg-white/95 dark:bg-[#1a1f2b] border-gray-200 dark:border-[#2a3348] text-slate-900 dark:text-slate-100 shadow-xl">
             <h3 className="text-2xl font-bold">Ближайшие задачи</h3>
             <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
-              Сегодня: Практика по REST API (до 18:00).
+              Сегодня: Начать новую лекцию по Блокчейн технологиям.
             </p>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              Завтра: Тест по машинному обучению (20 вопросов).
+              Заданий пока нет.
             </p>
           </Card>
           <Card className="p-8 bg-white/95 dark:bg-[#1a1f2b] border-gray-200 dark:border-[#2a3348] text-slate-900 dark:text-slate-100 shadow-xl">
@@ -116,7 +116,7 @@ export function Dashboard({ user }: DashboardProps) {
               и предложит персональный план подготовки к экзамену.
             </p>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              Доступен 24/7 для студентов и преподавателей.
+              Доступен 24/7 для студентов.
             </p>
           </Card>
         </CardSwap>

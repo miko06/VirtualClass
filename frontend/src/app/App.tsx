@@ -11,7 +11,6 @@ import { TeacherCourses } from './components/TeacherCourses';
 import { TeacherMaterials } from './components/TeacherMaterials';
 import { AIAssignmentGenerator } from './components/AIAssignmentGenerator';
 import { StudentSubmissions } from './components/StudentSubmissions';
-import { TeacherAnalytics } from './components/TeacherAnalytics';
 import { StudentAssignments } from './components/StudentAssignments';
 import { ThemeSquaresBackground } from './components/ThemeSquaresBackground';
 import Dock, { DockItemData } from './components/Dock';
@@ -43,17 +42,15 @@ export default function App() {
   const renderTeacherContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <TeacherDashboard />;
+        return <TeacherDashboard currentUser={currentUser} />;
       case 'courses':
-        return <TeacherCourses />;
+        return <TeacherCourses currentUser={currentUser} />;
       case 'materials':
         return <TeacherMaterials />;
       case 'ai-generator':
         return <AIAssignmentGenerator />;
       case 'submissions':
         return <StudentSubmissions />;
-      case 'analytics':
-        return <TeacherAnalytics />;
       case 'students':
         return (
           <div className="legacy-theme-screen p-8 min-h-screen relative overflow-hidden bg-gray-50 dark:bg-[#0f1115] transition-colors duration-200">
@@ -64,7 +61,7 @@ export default function App() {
           </div>
         );
       default:
-        return <TeacherDashboard />;
+        return <TeacherDashboard currentUser={currentUser} />;
     }
   };
 
@@ -74,7 +71,7 @@ export default function App() {
       case 'dashboard':
         return <Dashboard user={currentUser} />;
       case 'courses':
-        return <Courses />;
+        return <Courses currentUser={currentUser} />;
       case 'ai-assistant':
         return <AIAssistant />;
       case 'materials':
@@ -82,7 +79,7 @@ export default function App() {
       case 'assignments':
         return <StudentAssignments />;
       case 'profile':
-        return <Profile />;
+        return <Profile currentUser={currentUser} />;
       default:
         return <Dashboard user={currentUser} />;
     }
@@ -99,7 +96,6 @@ export default function App() {
     { label: 'Материалы', icon: <Upload size={20} />, onClick: () => setActiveTab('materials'), isActive: activeTab === 'materials' },
     { label: 'Генератор', icon: <Bot size={20} />, onClick: () => setActiveTab('ai-generator'), isActive: activeTab === 'ai-generator' },
     { label: 'Работы', icon: <FileText size={20} />, onClick: () => setActiveTab('submissions'), isActive: activeTab === 'submissions' },
-    { label: 'Аналитика', icon: <BarChart3 size={20} />, onClick: () => setActiveTab('analytics'), isActive: activeTab === 'analytics' },
     { label: 'Студенты', icon: <Users size={20} />, onClick: () => setActiveTab('students'), isActive: activeTab === 'students' },
     { label: 'Выйти', icon: <LogOut size={20} />, onClick: handleLogout, className: '!border-red-500/30 hover:!border-red-500' },
   ];

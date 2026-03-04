@@ -9,12 +9,8 @@ interface AuthScreenProps {
 
 export function AuthScreen({ onAuth }: AuthScreenProps) {
   const handleSignIn = async (values: SignInValues) => {
-    const users = await usersApi.list();
-    const found = users.find((u) => u.email === values.email);
-    if (!found) {
-      throw new Error('User not found');
-    }
-    onAuth(found.role as UserRole, found);
+    const user = await usersApi.login(values.email, values.password);
+    onAuth(user.role as UserRole, user);
   };
 
   const handleSignUp = async (values: SignUpValues) => {

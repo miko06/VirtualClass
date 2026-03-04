@@ -31,7 +31,23 @@ export interface User {
   id: number;
   email: string;
   name: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  group: string | null;
+  specialtyCode: string | null;
   role: string;
+  createdAt: string;
+}
+
+export interface ClassItem {
+  id: number;
+  name: string;
+  description: string | null;
+  teacherId: number;
+  disciplineId: number | null;
+  semester: string | null;
+  teacher?: { id: number; name: string | null; email: string };
+  enrollments?: Array<{ id: number }>;
   createdAt: string;
 }
 
@@ -39,10 +55,40 @@ export const usersApi = {
   list(): Promise<User[]> {
     return request('/users');
   },
+  login(email: string, password: string): Promise<User> {
+    return request('/users/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  },
   create(data: { name: string; email: string; password: string; role: string }): Promise<User> {
     return request('/users', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+  },
+};
+
+export const classesApi = {
+  byTeacher(teacherId: number): Promise<ClassItem[]> {
+    return request(`/classes/teacher/${teacherId}`);
+  },
+  byStudent(studentId: number): Promise<ClassItem[]> {
+    return request(`/classes/student/${studentId}`);
+  },
+  create(data: {
+    name: string;
+    description?: string;
+    teacherId: number;
+    disciplineId?: number;
+    semester?: string;
+  }): Promise<ClassItem> {
+    return request('/classes', { method: 'POST', body: JSON.stringify(data) });
+  },
+  update(id: number, data: Partial<{ name: string; description: string; semester: string }>): Promise<ClassItem> {
+    return request(`/classes/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  },
+  remove(id: number): Promise<void> {
+    return request(`/classes/${id}`, { method: 'DELETE' });
   },
 };

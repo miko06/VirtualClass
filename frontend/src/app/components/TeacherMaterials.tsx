@@ -16,11 +16,7 @@ export function TeacherMaterials() {
     'Алгоритмы и структуры данных',
   ];
 
-  const recentUploads = [
-    { id: 1, title: 'Введение в нейронные сети', type: 'video', course: 'Машинное обучение', date: '15 фев 2026', size: '125 МБ' },
-    { id: 2, title: 'Лекция 5: React Hooks', type: 'document', course: 'Веб-разработка', date: '14 фев 2026', size: '2.4 МБ' },
-    { id: 3, title: 'SQL практика', type: 'document', course: 'Базы данных', date: '13 фев 2026', size: '1.8 МБ' },
-  ];
+  const recentUploads: Array<{ id: number; title: string; type: string; course: string; date: string; size: string }> = [];
 
   const handleUpload = () => {
     setIsUploading(true);
@@ -98,8 +94,8 @@ export function TeacherMaterials() {
                     key={id}
                     onClick={() => setUploadMethod(id)}
                     className={`p-4 rounded-xl flex flex-col items-center gap-3 transition-all border-2 ${uploadMethod === id
-                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm'
-                        : 'border-slate-100 bg-white text-slate-500 hover:border-indigo-200 hover:bg-slate-50'
+                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm'
+                      : 'border-slate-100 bg-white text-slate-500 hover:border-indigo-200 hover:bg-slate-50'
                       }`}
                   >
                     <Icon className="w-6 h-6" />

@@ -21,24 +21,37 @@ type Props = {
 export default function AuthCard({ onSignUp, onSignIn }: Props) {
   const { theme, toggleTheme } = useTheme();
   const [active, setActive] = useState(false); // false = Sign In, true = Sign Up
-  const [signUp, setSignUp] = useState<SignUpValues>({
-    name: '',
-    email: '',
-    password: '',
-  });
-  const [signIn, setSignIn] = useState<SignInValues>({
-    email: '',
-    password: '',
-  });
+  const [signUp, setSignUp] = useState<SignUpValues>({ name: '', email: '', password: '' });
+  const [signIn, setSignIn] = useState<SignInValues>({ email: '', password: '' });
+  const [signInError, setSignInError] = useState('');
+  const [signInLoading, setSignInLoading] = useState(false);
+  const [signUpError, setSignUpError] = useState('');
+  const [signUpLoading, setSignUpLoading] = useState(false);
 
   async function handleSignUpSubmit(e: React.FormEvent) {
     e.preventDefault();
-    await onSignUp?.(signUp);
+    setSignUpError('');
+    setSignUpLoading(true);
+    try {
+      await onSignUp?.(signUp);
+    } catch (err: any) {
+      setSignUpError(err?.message ?? 'Ошибка регистрации');
+    } finally {
+      setSignUpLoading(false);
+    }
   }
 
   async function handleSignInSubmit(e: React.FormEvent) {
     e.preventDefault();
-    await onSignIn?.(signIn);
+    setSignInError('');
+    setSignInLoading(true);
+    try {
+      await onSignIn?.(signIn);
+    } catch (err: any) {
+      setSignInError(err?.message ?? 'Неверный email или пароль');
+    } finally {
+      setSignInLoading(false);
+    }
   }
 
   return (
@@ -95,18 +108,22 @@ export default function AuthCard({ onSignUp, onSignIn }: Props) {
               required
             />
 
-            <a
-              href="#"
-              className="mt-4 text-sm text-gray-700 dark:text-gray-300 hover:underline"
-            >
+            {signInError && (
+              <p className="mt-3 w-full text-xs font-semibold text-red-500 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 text-center">
+                {signInError}
+              </p>
+            )}
+
+            <a href="#" className="mt-4 text-sm text-gray-700 dark:text-gray-300 hover:underline">
               Забыли пароль?
             </a>
 
             <button
               type="submit"
-              className="mt-6 rounded-lg bg-violet-700 px-12 py-2.5 text-xs font-semibold uppercase tracking-wide text-white hover:bg-violet-800 transition"
+              disabled={signInLoading}
+              className="mt-6 rounded-lg bg-violet-700 px-12 py-2.5 text-xs font-semibold uppercase tracking-wide text-white hover:bg-violet-800 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Войти
+              {signInLoading ? 'Вход...' : 'Войти'}
             </button>
           </form>
         </div>
@@ -163,11 +180,18 @@ export default function AuthCard({ onSignUp, onSignIn }: Props) {
               required
             />
 
+            {signUpError && (
+              <p className="mt-3 w-full text-xs font-semibold text-red-500 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 text-center">
+                {signUpError}
+              </p>
+            )}
+
             <button
               type="submit"
-              className="mt-6 rounded-lg bg-violet-700 px-12 py-2.5 text-xs font-semibold uppercase tracking-wide text-white hover:bg-violet-800 transition"
+              disabled={signUpLoading}
+              className="mt-6 rounded-lg bg-violet-700 px-12 py-2.5 text-xs font-semibold uppercase tracking-wide text-white hover:bg-violet-800 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Зарегистрироваться
+              {signUpLoading ? 'Создание...' : 'Зарегистрироваться'}
             </button>
           </form>
         </div>
