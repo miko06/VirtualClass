@@ -12,7 +12,6 @@ import { TeacherDashboard } from './app/components/TeacherDashboard';
 import { TeacherCourses } from './app/components/TeacherCourses';
 import { TeacherMaterials } from './app/components/TeacherMaterials';
 import { AIAssignmentGenerator } from './app/components/AIAssignmentGenerator';
-import { StudentSubmissions } from './app/components/StudentSubmissions';
 import { TeacherAnalytics } from './app/components/TeacherAnalytics';
 import { StudentAssignments } from './app/components/StudentAssignments';
 import { UsersPanel } from './components/UsersPanel';
@@ -44,8 +43,6 @@ export default function App() {
         return <TeacherMaterials />;
       case 'ai-generator':
         return <AIAssignmentGenerator />;
-      case 'submissions':
-        return <StudentSubmissions />;
       case 'analytics':
         return <TeacherAnalytics />;
       case 'users':
@@ -65,7 +62,7 @@ export default function App() {
   const renderStudentContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard user={null} />;
       case 'courses':
         return <Courses />;
       case 'ai-assistant':
@@ -79,7 +76,7 @@ export default function App() {
       case 'users':
         return <UsersPanel />;
       default:
-        return <Dashboard />;
+        return <Dashboard user={null} />;
     }
   };
 

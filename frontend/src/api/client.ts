@@ -92,3 +92,42 @@ export const classesApi = {
     return request(`/classes/${id}`, { method: 'DELETE' });
   },
 };
+
+export type MaterialType = 'pdf' | 'video' | 'archive' | 'document' | 'spreadsheet' | 'url' | 'text';
+
+export interface MaterialItem {
+  id: number;
+  title: string;
+  description: string | null;
+  type: MaterialType;
+  courseName: string;
+  size: string | null;
+  url: string | null;
+  teacherId: number;
+  teacher?: { id: number; name: string | null; email: string } | null;
+  isVerified: boolean;
+  createdAt: string;
+}
+
+export const materialsApi = {
+  list(): Promise<MaterialItem[]> {
+    return request('/materials');
+  },
+  byTeacher(teacherId: number): Promise<MaterialItem[]> {
+    return request(`/materials/teacher/${teacherId}`);
+  },
+  create(data: {
+    title: string;
+    description?: string;
+    type: MaterialType;
+    courseName: string;
+    size?: string;
+    url?: string;
+    teacherId: number;
+  }): Promise<MaterialItem> {
+    return request('/materials', { method: 'POST', body: JSON.stringify(data) });
+  },
+  remove(id: number): Promise<void> {
+    return request(`/materials/${id}`, { method: 'DELETE' });
+  },
+};

@@ -1,37 +1,102 @@
-import { useState } from 'react';
-import { Upload, FileText, Link as LinkIcon, Video, File, Check } from 'lucide-react';
-import { motion } from 'motion/react';
+import { useState, useRef } from 'react';
+import { Upload, FileText, Link as LinkIcon, Video, File, Check, Trash2, BookOpen } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ThemeSquaresBackground } from './ThemeSquaresBackground';
+import { useMaterials, SharedMaterialType } from '../contexts/MaterialsContext';
+
+const COURSES = [
+  'Машинное обучение',
+  'Веб-разработка',
+  'Базы данных',
+  'Алгоритмы и структуры данных',
+  'Информационная безопасность',
+];
+
+const EXT_TO_TYPE: Record<string, SharedMaterialType> = {
+  pdf: 'pdf',
+  doc: 'document', docx: 'document', txt: 'document',
+  ppt: 'document', pptx: 'document',
+  mp4: 'video', mov: 'video', avi: 'video', mkv: 'video',
+  zip: 'archive', rar: 'archive', '7z': 'archive',
+  xls: 'spreadsheet', xlsx: 'spreadsheet', csv: 'spreadsheet',
+};
+
+function getTypeFromFileName(name: string): SharedMaterialType {
+  const ext = name.split('.').pop()?.toLowerCase() ?? '';
+  return EXT_TO_TYPE[ext] ?? 'document';
+}
+
+function formatSize(bytes: number): string {
+  if (bytes > 1_000_000) return `${(bytes / 1_000_000).toFixed(1)} МБ`;
+  return `${(bytes / 1_000).toFixed(0)} КБ`;
+}
 
 export function TeacherMaterials() {
+  const { materials, addMaterial, removeMaterial } = useMaterials();
+
   const [selectedCourse, setSelectedCourse] = useState('');
   const [uploadMethod, setUploadMethod] = useState<'file' | 'url' | 'text'>('file');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [urlValue, setUrlValue] = useState('');
+  const [textValue, setTextValue] = useState('');
+  const [pickedFile, setPickedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const courses = [
-    'Машинное обучение',
-    'Веб-разработка',
-    'Базы данных',
-    'Алгоритмы и структуры данных',
-  ];
-
-  const recentUploads: Array<{ id: number; title: string; type: string; course: string; date: string; size: string }> = [];
-
-  const handleUpload = () => {
-    setIsUploading(true);
-    setTimeout(() => {
-      setIsUploading(false);
-      setUploadSuccess(true);
-      setTimeout(() => setUploadSuccess(false), 3000);
-    }, 2000);
+  const handleFilePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPickedFile(file);
+    if (!title) setTitle(file.name.replace(/\.[^.]+$/, ''));
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'video': return Video;
-      case 'document': return FileText;
-      default: return File;
+  const canSubmit = selectedCourse && title.trim() && (
+    (uploadMethod === 'file' && pickedFile) ||
+    (uploadMethod === 'url' && urlValue.trim()) ||
+    (uploadMethod === 'text' && textValue.trim())
+  );
+
+  const handleUpload = async () => {
+    if (!canSubmit) return;
+    setIsUploading(true);
+    try {
+      const type: SharedMaterialType =
+        uploadMethod === 'file' && pickedFile
+          ? getTypeFromFileName(pickedFile.name)
+          : uploadMethod === 'url'
+            ? 'video'
+            : 'document';
+
+      const size =
+        uploadMethod === 'file' && pickedFile
+          ? formatSize(pickedFile.size)
+          : uploadMethod === 'url'
+            ? 'Внешняя ссылка'
+            : `${textValue.trim().length} симв.`;
+
+      await addMaterial({
+        title: title.trim(),
+        description: description.trim(),
+        type,
+        courseName: selectedCourse,
+        size,
+        url: uploadMethod === 'url' ? urlValue.trim() : '#',
+      });
+
+      // Reset form
+      setTitle('');
+      setDescription('');
+      setUrlValue('');
+      setTextValue('');
+      setPickedFile(null);
+      setUploadSuccess(true);
+      setTimeout(() => setUploadSuccess(false), 3000);
+    } catch (err) {
+      console.error('Upload error:', err);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -41,18 +106,23 @@ export function TeacherMaterials() {
     { id: 'text' as const, icon: FileText, label: 'Текст' },
   ];
 
+  const getTypeIcon = (type: SharedMaterialType) => {
+    switch (type) {
+      case 'video': return <Video className="w-5 h-5 text-white" />;
+      case 'pdf': return <FileText className="w-5 h-5 text-white" />;
+      case 'archive': return <File className="w-5 h-5 text-white" />;
+      default: return <File className="w-5 h-5 text-white" />;
+    }
+  };
+
   return (
-    <div className="legacy-theme-screen p-8 min-h-screen relative overflow-hidden bg-slate-50">
+    <div className="legacy-theme-screen p-8 min-h-screen relative overflow-hidden bg-slate-50 dark:bg-[#0f1115] transition-colors duration-200">
       <ThemeSquaresBackground />
 
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8 relative z-10"
-      >
-        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Управление материалами</h2>
-        <p className="text-sm font-medium text-slate-500">
-          Загружайте лекции, документы и другие учебные материалы
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-8 relative z-10">
+        <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">Управление материалами</h2>
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          Загружайте лекции, документы и другие учебные материалы — они сразу появятся у студентов
         </p>
       </motion.div>
 
@@ -62,26 +132,20 @@ export function TeacherMaterials() {
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="rounded-3xl p-8 bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100"
+            className="rounded-3xl p-8 bg-white dark:bg-[#151821] shadow-xl shadow-slate-200/50 dark:shadow-none ring-1 ring-slate-100 dark:ring-slate-800"
           >
-            <h3 className="text-xl font-bold text-slate-800 tracking-tight mb-6">
-              Загрузить новый материал
-            </h3>
+            <h3 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight mb-6">Загрузить новый материал</h3>
 
-            {/* Course Selection */}
+            {/* Course */}
             <div className="mb-6">
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Выберите курс</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Выберите курс *</label>
               <select
                 value={selectedCourse}
-                onChange={(e) => setSelectedCourse(e.target.value)}
-                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 font-medium rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-shadow appearance-none"
+                onChange={e => setSelectedCourse(e.target.value)}
+                className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition appearance-none"
               >
                 <option value="">Выберите курс...</option>
-                {courses.map((course) => (
-                  <option key={course} value={course}>
-                    {course}
-                  </option>
-                ))}
+                {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
 
@@ -94,8 +158,8 @@ export function TeacherMaterials() {
                     key={id}
                     onClick={() => setUploadMethod(id)}
                     className={`p-4 rounded-xl flex flex-col items-center gap-3 transition-all border-2 ${uploadMethod === id
-                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm'
-                      : 'border-slate-100 bg-white text-slate-500 hover:border-indigo-200 hover:bg-slate-50'
+                      ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 shadow-sm'
+                      : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 hover:border-indigo-200 hover:bg-slate-50 dark:hover:bg-slate-700'
                       }`}
                   >
                     <Icon className="w-6 h-6" />
@@ -105,65 +169,75 @@ export function TeacherMaterials() {
               </div>
             </div>
 
-            {/* Upload Area */}
+            {/* File Upload */}
             {uploadMethod === 'file' && (
               <div className="mb-6">
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Загрузить файл</label>
-                <div
-                  className="rounded-2xl p-10 text-center transition-all cursor-pointer border-2 border-dashed border-indigo-200 bg-indigo-50/50 hover:bg-indigo-50 hover:border-indigo-400 group"
-                >
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-white shadow-md shadow-indigo-500/10 group-hover:scale-110 transition-transform">
-                    <Upload className="w-8 h-8 text-indigo-500" />
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Файл</label>
+                {pickedFile ? (
+                  <div className="flex items-center gap-4 p-4 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl border border-indigo-200 dark:border-indigo-500/30">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500 flex items-center justify-center shrink-0">
+                      <FileText className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm text-slate-800 dark:text-slate-200 truncate">{pickedFile.name}</p>
+                      <p className="text-xs text-slate-500">{formatSize(pickedFile.size)}</p>
+                    </div>
+                    <button onClick={() => setPickedFile(null)} className="text-slate-400 hover:text-rose-500 transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
-                  <p className="text-base font-bold text-indigo-900 mb-1">
-                    Перетащите файл или нажмите для выбора
-                  </p>
-                  <p className="text-sm font-medium text-indigo-500/70 mb-6">
-                    PDF, DOCX, PPT, MP4 (макс. 500 МБ)
-                  </p>
-                  <label
-                    htmlFor="file-upload"
-                    className="inline-block px-6 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
-                    style={{
-                      background: 'linear-gradient(135deg, #4f46e5, #0ea5e9)',
-                      boxShadow: '0 8px 20px -6px rgba(79,70,229,0.4)',
-                    }}
+                ) : (
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="rounded-2xl p-10 text-center transition-all cursor-pointer border-2 border-dashed border-indigo-200 bg-indigo-50/50 dark:bg-indigo-500/5 dark:border-indigo-500/30 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:border-indigo-400 group"
                   >
-                    Выбрать файл
-                  </label>
-                  <input type="file" id="file-upload" className="hidden" />
-                </div>
+                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-white dark:bg-slate-800 shadow-md group-hover:scale-110 transition-transform">
+                      <Upload className="w-8 h-8 text-indigo-500" />
+                    </div>
+                    <p className="text-base font-bold text-indigo-900 dark:text-indigo-300 mb-1">Перетащите файл или нажмите для выбора</p>
+                    <p className="text-sm font-medium text-indigo-500/70">PDF, DOCX, PPT, MP4, ZIP (макс. 500 МБ)</p>
+                  </div>
+                )}
+                <input ref={fileInputRef} type="file" className="hidden" onChange={handleFilePick} />
               </div>
             )}
 
+            {/* URL */}
             {uploadMethod === 'url' && (
               <div className="mb-6">
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">URL материала</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">URL материала *</label>
                 <input
                   type="url"
                   placeholder="https://example.com/video-lecture"
-                  className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 font-medium rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-shadow"
+                  value={urlValue}
+                  onChange={e => setUrlValue(e.target.value)}
+                  className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
                 />
               </div>
             )}
 
+            {/* Text */}
             {uploadMethod === 'text' && (
               <div className="mb-6">
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Текст материала</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Текст материала *</label>
                 <textarea
                   placeholder="Введите или вставьте текст лекции..."
-                  className="w-full h-40 px-4 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 font-medium rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-shadow resize-none"
+                  value={textValue}
+                  onChange={e => setTextValue(e.target.value)}
+                  className="w-full h-40 px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition resize-none"
                 />
               </div>
             )}
 
             {/* Title */}
             <div className="mb-6">
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Название материала</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Название материала *</label>
               <input
                 type="text"
                 placeholder="Например: Лекция 1: Введение"
-                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 font-bold rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-shadow"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-bold rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
               />
             </div>
 
@@ -172,14 +246,16 @@ export function TeacherMaterials() {
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Описание (опционально)</label>
               <textarea
                 placeholder="Краткое описание материала..."
-                className="w-full h-24 px-4 py-3.5 bg-slate-50 border border-slate-200 text-slate-900 font-medium rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-shadow resize-none"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                className="w-full h-24 px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition resize-none"
               />
             </div>
 
-            {/* Upload Button */}
+            {/* Submit */}
             <button
               onClick={handleUpload}
-              disabled={!selectedCourse || isUploading}
+              disabled={!canSubmit || isUploading}
               className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl text-white text-base font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg active:scale-95"
               style={{
                 background: uploadSuccess
@@ -191,72 +267,69 @@ export function TeacherMaterials() {
               }}
             >
               {isUploading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Загрузка...
-                </>
+                <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />Загрузка...</>
               ) : uploadSuccess ? (
-                <>
-                  <Check className="w-5 h-5" />
-                  Успешно загружено!
-                </>
+                <><Check className="w-5 h-5" />Успешно опубликовано!</>
               ) : (
-                <>
-                  <Upload className="w-5 h-5" />
-                  Опубликовать материал
-                </>
+                <><Upload className="w-5 h-5" />Опубликовать материал</>
               )}
             </button>
           </motion.div>
         </div>
 
-        {/* Recent Uploads */}
+        {/* Recent uploads sidebar */}
         <div className="lg:col-span-1">
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="rounded-3xl p-6 bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100"
+            className="rounded-3xl p-6 bg-white dark:bg-[#151821] shadow-xl shadow-slate-200/50 dark:shadow-none ring-1 ring-slate-100 dark:ring-slate-800"
           >
-            <h3 className="text-lg font-bold text-slate-800 tracking-tight mb-6">
-              Недавние загрузки
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white tracking-tight mb-6">
+              Опубликованные материалы
+              {materials.length > 0 && (
+                <span className="ml-2 text-xs font-bold bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full">{materials.length}</span>
+              )}
             </h3>
-            <div className="space-y-4">
-              {recentUploads.map((upload, index) => {
-                const Icon = getTypeIcon(upload.type);
-                return (
-                  <motion.div
-                    key={upload.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.02 }}
-                    className="p-4 rounded-2xl transition-all cursor-pointer bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-md hover:bg-white group"
-                  >
-                    <div className="flex items-start gap-4">
+
+            <AnimatePresence>
+              {materials.length === 0 ? (
+                <div className="text-center py-10 text-slate-400 flex flex-col items-center gap-3">
+                  <BookOpen className="w-8 h-8 opacity-30" />
+                  <p className="text-sm font-medium">Нет загруженных материалов.<br />Загрузите первый!</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {materials.map((m, index) => (
+                    <motion.div
+                      key={m.id}
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ delay: index * 0.04 }}
+                      className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 group flex items-start gap-3"
+                    >
                       <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm transition-transform group-hover:scale-110"
-                        style={{
-                          background: 'linear-gradient(135deg, #818cf8, #a78bfa)',
-                        }}
+                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                        style={{ background: 'linear-gradient(135deg, #818cf8, #a78bfa)' }}
                       >
-                        <Icon className="w-5 h-5 text-white" />
+                        {getTypeIcon(m.type)}
                       </div>
-                      <div className="flex-1 min-w-0 py-1">
-                        <p className="text-sm font-bold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
-                          {upload.title}
-                        </p>
-                        <p className="text-xs font-semibold text-slate-500 mt-0.5">{upload.course}</p>
-                        <div className="flex items-center gap-2 mt-2 text-xs font-bold text-slate-400">
-                          <span>{upload.date}</span>
-                          <span className="w-1 h-1 rounded-full bg-slate-300" />
-                          <span>{upload.size}</span>
-                        </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{m.title}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{m.courseName}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{m.size} · {m.uploadDate}</p>
                       </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
+                      <button
+                        onClick={async () => { await removeMaterial(m.id); }}
+                        className="p-1 text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100 shrink-0"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </div>
       </div>

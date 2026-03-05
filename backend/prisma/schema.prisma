@@ -19,9 +19,10 @@ model User {
   createdAt     DateTime @default(now())
 
   // Relations
-  taughtDisciplines Discipline[] @relation("TeacherDisciplines")
-  taughtClasses     Class[]      @relation("TeacherClasses")
-  enrollments       Enrollment[] @relation("StudentEnrollments")
+  taughtDisciplines Discipline[]  @relation("TeacherDisciplines")
+  taughtClasses     Class[]       @relation("TeacherClasses")
+  enrollments       Enrollment[]  @relation("StudentEnrollments")
+  materials         Material[]    @relation("TeacherMaterials")
 }
 
 model Discipline {
@@ -56,4 +57,18 @@ model Enrollment {
   createdAt DateTime @default(now())
 
   @@unique([studentId, classId])
+}
+
+model Material {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  type        String   @default("document")
+  courseName  String
+  size        String?
+  url         String?
+  teacherId   Int
+  teacher     User     @relation("TeacherMaterials", fields: [teacherId], references: [id])
+  isVerified  Boolean  @default(true)
+  createdAt   DateTime @default(now())
 }

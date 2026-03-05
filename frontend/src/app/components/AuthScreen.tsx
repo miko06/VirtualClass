@@ -10,6 +10,7 @@ interface AuthScreenProps {
 export function AuthScreen({ onAuth }: AuthScreenProps) {
   const handleSignIn = async (values: SignInValues) => {
     const user = await usersApi.login(values.email, values.password);
+    localStorage.setItem('currentUserId', String(user.id));
     onAuth(user.role as UserRole, user);
   };
 
@@ -20,6 +21,7 @@ export function AuthScreen({ onAuth }: AuthScreenProps) {
       password: values.password,
       role: 'student',
     });
+    localStorage.setItem('currentUserId', String(createdUser.id));
     onAuth('student', createdUser);
   };
 

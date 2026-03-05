@@ -37,7 +37,7 @@ export function Courses({ currentUser }: CoursesProps) {
   }, [currentUser?.id]);
 
   if (selectedCourse) {
-    return <CourseDetails course={selectedCourse} onBack={() => setSelectedCourse(null)} />;
+    return <CourseDetails course={selectedCourse} onBack={() => setSelectedCourse(null)} currentUser={currentUser} />;
   }
 
   return (

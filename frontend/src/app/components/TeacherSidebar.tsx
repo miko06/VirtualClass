@@ -1,4 +1,4 @@
-import { Home, BookOpen, Upload, Bot, FileText, BarChart3, Users, LogOut, Sparkles } from 'lucide-react';
+import { Home, BookOpen, Upload, Bot, BarChart3, Users, LogOut, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface TeacherSidebarProps {
@@ -13,7 +13,6 @@ export function TeacherSidebar({ activeTab, onTabChange, onLogout }: TeacherSide
     { id: 'courses', label: 'Курсы', icon: BookOpen },
     { id: 'materials', label: 'Материалы', icon: Upload },
     { id: 'ai-generator', label: 'Генератор', icon: Bot },
-    { id: 'submissions', label: 'Работы', icon: FileText },
     { id: 'analytics', label: 'Аналитика', icon: BarChart3 },
     { id: 'students', label: 'Студенты', icon: Users },
   ];

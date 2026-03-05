@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ThemeSquaresBackground } from './ThemeSquaresBackground';
 import { classesApi, ClassItem } from '../../api/client';
 import type { User } from '../../api/client';
+import { TeacherCourseDetails } from './TeacherCourseDetails';
 
 const GRADIENTS = [
   { gradient: 'linear-gradient(135deg, #7c3aed, #6366f1)', glow: 'rgba(124,58,237,0.3)' },
@@ -24,6 +25,7 @@ export function TeacherCourses({ currentUser }: TeacherCoursesProps) {
   const [editClass, setEditClass] = useState<ClassItem | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ name: '', description: '', semester: '2025-2026 / 2-й семестр' });
+  const [selectedCourse, setSelectedCourse] = useState<ClassItem | null>(null);
 
   const load = () => {
     if (!currentUser?.id) { setLoading(false); return; }
@@ -35,6 +37,10 @@ export function TeacherCourses({ currentUser }: TeacherCoursesProps) {
   };
 
   useEffect(() => { load(); }, [currentUser?.id]);
+
+  if (selectedCourse) {
+    return <TeacherCourseDetails course={selectedCourse} onBack={() => setSelectedCourse(null)} />;
+  }
 
   const openCreate = () => {
     setEditClass(null);
@@ -167,7 +173,9 @@ export function TeacherCourses({ currentUser }: TeacherCoursesProps) {
 
                   <div className="flex gap-3 mt-auto">
                     <button className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-white text-sm font-bold transition-all hover:-translate-y-0.5 shadow-md hover:shadow-lg active:scale-95"
-                      style={{ background: palette.gradient, boxShadow: `0 8px 20px -6px ${palette.glow}` }}>
+                      style={{ background: palette.gradient, boxShadow: `0 8px 20px -6px ${palette.glow}` }}
+                      onClick={() => setSelectedCourse(cls)}
+                    >
                       <Settings className="w-4 h-4" /> Управление
                     </button>
                     <button onClick={() => openEdit(cls)}
