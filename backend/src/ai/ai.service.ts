@@ -5,7 +5,17 @@ import { ChatMessageDto } from "./dto/chat.dto";
 
 type ProjectFile = {
   path: string;
+  pathLower: string;
   content: string;
+  previewLower: string;
+};
+
+type ChatResult = {
+  reply: string;
+  model: string;
+  filesUsed: string[];
+  filesScanned: number;
+  contextMode: "project" | "light";
 };
 
 @Injectable()
@@ -13,11 +23,16 @@ export class AiService {
   private readonly ollamaBaseUrl = process.env.OLLAMA_BASE_URL ?? "http://localhost:11434";
   private readonly preferredModel = process.env.OLLAMA_MODEL ?? "minimax-m2.5";
   private readonly fallbackModels = ["qwen2.5:7b", "llama3.1:8b", "llama3.2:3b", "gemma2:9b"];
-  private readonly workspaceRoot = path.resolve(process.cwd(), "..");
-  private readonly maxContextFiles = Number(process.env.AI_MAX_CONTEXT_FILES ?? 20);
-  private readonly maxFileChars = Number(process.env.AI_MAX_FILE_CHARS ?? 8000);
-  private readonly maxContextChars = Number(process.env.AI_MAX_CONTEXT_CHARS ?? 160000);
-  private readonly maxListedPaths = Number(process.env.AI_MAX_LISTED_PATHS ?? 1200);
+  private readonly workspaceRoot = process.env.PROJECT_ROOT ?? path.resolve(process.cwd(), "..");
+  private readonly maxContextFiles = Number(process.env.AI_MAX_CONTEXT_FILES ?? 8);
+  private readonly maxFileChars = Number(process.env.AI_MAX_FILE_CHARS ?? 3000);
+  private readonly maxContextChars = Number(process.env.AI_MAX_CONTEXT_CHARS ?? 40_000);
+  private readonly modelCacheTtlMs = Number(process.env.AI_MODEL_CACHE_TTL_MS ?? 10 * 60_000);
+  private readonly projectCacheTtlMs = Number(process.env.AI_PROJECT_CACHE_TTL_MS ?? 5 * 60_000);
+  private readonly responseTemperature = Number(process.env.AI_TEMPERATURE ?? 0.2);
+  private readonly maxResponseTokens = Number(process.env.AI_NUM_PREDICT ?? 384);
+  private readonly contextWindow = Number(process.env.AI_NUM_CTX ?? 4096);
+  private readonly ollamaKeepAlive = process.env.OLLAMA_KEEP_ALIVE ?? "30m";
 
   private readonly ignoreDirs = new Set([
     ".git",
@@ -61,7 +76,11 @@ export class AiService {
   private modelCache: { model: string; expiresAt: number } | null = null;
   private projectCache: { files: ProjectFile[]; expiresAt: number } | null = null;
 
-  async chat(messages: ChatMessageDto[]) {
+  async chat(messages: ChatMessageDto[]): Promise<ChatResult> {
+    return this.streamChat(messages);
+  }
+
+  async streamChat(messages: ChatMessageDto[], onDelta?: (chunk: string) => void): Promise<ChatResult> {
     const model = await this.resolveModel();
     const userQuery = this.extractUserQuery(messages);
     const context = await this.buildFileContext(userQuery);
@@ -81,6 +100,12 @@ export class AiService {
       body: JSON.stringify({
         model,
         stream: true,
+        keep_alive: this.ollamaKeepAlive,
+        options: {
+          temperature: this.responseTemperature,
+          num_predict: this.maxResponseTokens,
+          num_ctx: this.contextWindow,
+        },
         messages: [{ role: "system", content: systemPrompt }, ...messages],
       }),
     }).catch((error: unknown) => {
@@ -94,7 +119,7 @@ export class AiService {
       throw new BadGatewayException(`Ошибка Ollama (${response.status}): ${details || "empty response"}`);
     }
 
-    const reply = await this.readOllamaStream(response);
+    const reply = await this.readOllamaStream(response, onDelta);
     if (!reply.trim()) {
       throw new BadGatewayException("Ollama вернул пустой ответ");
     }
@@ -104,6 +129,7 @@ export class AiService {
       model,
       filesUsed: context.filesUsed,
       filesScanned: context.totalFiles,
+      contextMode: context.mode,
     };
   }
 
@@ -137,11 +163,11 @@ export class AiService {
       this.fallbackModels.find((candidate) => names.includes(candidate)) ||
       names[0];
 
-    this.modelCache = { model, expiresAt: now + 60_000 };
+    this.modelCache = { model, expiresAt: now + this.modelCacheTtlMs };
     return model;
   }
 
-  private async readOllamaStream(response: Response): Promise<string> {
+  private async readOllamaStream(response: Response, onDelta?: (chunk: string) => void): Promise<string> {
     const reader = response.body?.getReader();
     if (!reader) {
       throw new BadGatewayException("Пустой stream от Ollama");
@@ -165,6 +191,7 @@ export class AiService {
           const parsed = JSON.parse(line) as { message?: { content?: string } };
           if (parsed.message?.content) {
             result += parsed.message.content;
+            onDelta?.(parsed.message.content);
           }
         } catch {
           // Ignore malformed NDJSON line.
@@ -172,11 +199,13 @@ export class AiService {
       }
     }
 
+    buffer += decoder.decode();
     if (buffer.trim()) {
       try {
         const parsed = JSON.parse(buffer) as { message?: { content?: string } };
         if (parsed.message?.content) {
           result += parsed.message.content;
+          onDelta?.(parsed.message.content);
         }
       } catch {
         // Ignore trailing malformed data.
@@ -199,7 +228,20 @@ export class AiService {
     systemContext: string;
     filesUsed: string[];
     totalFiles: number;
+    mode: "project" | "light";
   }> {
+    if (!this.shouldAttachProjectContext(query)) {
+      return {
+        systemContext: [
+          "Режим: быстрый ответ без чтения файлов проекта.",
+          "Если для точного ответа нужен код проекта, попроси пользователя уточнить запрос с названием файла или модуля.",
+        ].join("\n"),
+        filesUsed: [],
+        totalFiles: this.projectCache?.files.length ?? 0,
+        mode: "light",
+      };
+    }
+
     const allFiles = await this.getProjectFiles();
     const tokens = this.tokenize(query);
 
@@ -210,7 +252,8 @@ export class AiService {
       }))
       .sort((a, b) => b.score - a.score || a.file.path.localeCompare(b.file.path));
 
-    const selected = (scored.some((s) => s.score > 0) ? scored : scored.slice(0)).slice(0, this.maxContextFiles);
+    const hasMatches = scored.some((s) => s.score > 0);
+    const selected = (hasMatches ? scored.filter((s) => s.score > 0) : scored).slice(0, this.maxContextFiles);
 
     const filesUsed: string[] = [];
     let totalChars = 0;
@@ -227,21 +270,13 @@ export class AiService {
       snippets.push(`### ${file.path}\n\`\`\`\n${snippet}\n\`\`\``);
     }
 
-    const sortedPaths = allFiles.map((f) => f.path).sort((a, b) => a.localeCompare(b));
-    const listedPaths = sortedPaths.slice(0, this.maxListedPaths);
-    const hiddenCount = sortedPaths.length - listedPaths.length;
-
     const systemContext = [
-      `Всего файлов проекта проиндексировано: ${sortedPaths.length}.`,
-      "Список файлов проекта:",
-      ...listedPaths.map((p) => `- ${p}`),
-      hiddenCount > 0 ? `- ... и ещё ${hiddenCount} файлов` : "",
-      "",
+      `Режим: анализ кода проекта. Проиндексировано файлов: ${allFiles.length}.`,
       "Релевантные фрагменты файлов:",
       snippets.length ? snippets.join("\n\n") : "Нет релевантных фрагментов для текущего запроса.",
     ].filter(Boolean).join("\n");
 
-    return { systemContext, filesUsed, totalFiles: sortedPaths.length };
+    return { systemContext, filesUsed, totalFiles: allFiles.length, mode: "project" };
   }
 
   private async getProjectFiles(): Promise<ProjectFile[]> {
@@ -253,22 +288,28 @@ export class AiService {
     const paths: string[] = [];
     await this.walkDirectory(this.workspaceRoot, paths);
 
-    const files: ProjectFile[] = [];
-    for (const absPath of paths) {
+    const loaded = await Promise.all(paths.map(async (absPath): Promise<ProjectFile | null> => {
       try {
         const stat = await fs.stat(absPath);
-        if (!stat.isFile() || stat.size > 512 * 1024) continue;
+        if (!stat.isFile() || stat.size > 512 * 1024) return null;
         const content = await fs.readFile(absPath, "utf8");
-        if (!content || content.includes("\u0000")) continue;
+        if (!content || content.includes("\u0000")) return null;
 
         const rel = path.relative(this.workspaceRoot, absPath).split(path.sep).join("/");
-        files.push({ path: rel, content });
+        return {
+          path: rel,
+          pathLower: rel.toLowerCase(),
+          content,
+          previewLower: content.slice(0, 2000).toLowerCase(),
+        };
       } catch {
         // Skip unreadable files.
+        return null;
       }
-    }
+    }));
 
-    this.projectCache = { files, expiresAt: now + 30_000 };
+    const files = loaded.filter((file): file is ProjectFile => Boolean(file));
+    this.projectCache = { files, expiresAt: now + this.projectCacheTtlMs };
     return files;
   }
 
@@ -305,29 +346,38 @@ export class AiService {
   }
 
   private tokenize(text: string): string[] {
-    const tokens = text.toLowerCase().match(/[a-zа-я0-9_]{3,}/gi) ?? [];
-    return [...new Set(tokens)].slice(0, 30);
+    const tokens = text.toLowerCase().match(/[a-zа-я0-9_./-]{3,}/gi) ?? [];
+    return [...new Set(tokens)].slice(0, 20);
   }
 
   private scoreFile(file: ProjectFile, tokens: string[]): number {
     if (!tokens.length) return 0;
 
-    const pathLower = file.path.toLowerCase();
-    const contentLower = file.content.toLowerCase();
     let score = 0;
 
     for (const token of tokens) {
-      if (pathLower.includes(token)) {
+      if (file.pathLower.includes(token)) {
         score += 8;
       }
 
-      const index = contentLower.indexOf(token);
-      if (index !== -1) {
+      if (file.previewLower.includes(token)) {
         score += 2;
       }
     }
 
     return score;
   }
-}
 
+  private shouldAttachProjectContext(query: string): boolean {
+    const normalized = query.toLowerCase().trim();
+    if (!normalized) return false;
+
+    if (normalized.includes("```")) return true;
+    if (normalized.includes("/") || normalized.includes("\\")) return true;
+    if (/\.(ts|tsx|js|jsx|json|prisma|sql|yml|yaml|md|css|scss|html|sh|py)\b/i.test(normalized)) return true;
+
+    return /(код|code|файл|file|проект|project|репозитор|repo|ошиб|error|exception|stack|trace|api|endpoint|controller|service|module|component|frontend|backend|docker|compose|nginx|postgres|prisma|schema|migration|sql|ssh|firewall|backup|config|конфиг)/i.test(
+      normalized,
+    );
+  }
+}

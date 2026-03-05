@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ThemeSquaresBackground } from './ThemeSquaresBackground';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
-const AI_CHAT_URL = `${API_BASE_URL}/ai/chat`;
+const AI_CHAT_STREAM_URL = `${API_BASE_URL}/ai/chat/stream`;
 
 interface Message {
   id: string;
@@ -23,7 +23,7 @@ async function askAssistant(
     content: msg.content,
   }));
 
-  const response = await fetch(AI_CHAT_URL, {
+  const response = await fetch(AI_CHAT_STREAM_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ messages: payloadMessages }),
@@ -35,10 +35,65 @@ async function askAssistant(
     throw new Error(`AI_BACKEND_${response.status}:${details}`);
   }
 
-  const payload = await response.json() as { reply?: string };
-  const fullText = payload.reply?.trim() || 'Не удалось получить ответ.';
-  onChunk(fullText);
-  return fullText;
+  const reader = response.body?.getReader();
+  if (!reader) {
+    throw new Error('AI_STREAM_UNAVAILABLE');
+  }
+
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let fullText = '';
+
+  const applyLine = (line: string) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+
+    let parsed: { type?: string; chunk?: string; reply?: string; message?: string };
+    try {
+      parsed = JSON.parse(trimmed);
+    } catch {
+      return;
+    }
+
+    if (parsed.type === 'chunk' && typeof parsed.chunk === 'string') {
+      fullText += parsed.chunk;
+      onChunk(fullText);
+      return;
+    }
+
+    if (parsed.type === 'done') {
+      if (!fullText && typeof parsed.reply === 'string') {
+        fullText = parsed.reply;
+        onChunk(fullText);
+      }
+      return;
+    }
+
+    if (parsed.type === 'error') {
+      throw new Error(parsed.message || 'AI_STREAM_ERROR');
+    }
+  };
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() ?? '';
+
+    for (const line of lines) {
+      applyLine(line);
+    }
+  }
+
+  buffer += decoder.decode();
+  if (buffer.trim()) {
+    applyLine(buffer);
+  }
+
+  const normalized = fullText.trim();
+  return normalized || 'Не удалось получить ответ.';
 }
 
 export function AIAssistant() {

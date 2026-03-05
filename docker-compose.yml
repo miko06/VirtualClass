@@ -1,27 +1,156 @@
+name: virtualclass
+
 services:
   postgres:
     image: postgres:15
+    container_name: vc-postgres
     environment:
-      POSTGRES_DB: vc
-      POSTGRES_USER: vc
-      POSTGRES_PASSWORD: vc
+      POSTGRES_DB: ${POSTGRES_DB:-vc}
+      POSTGRES_USER: ${POSTGRES_USER:-vc}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vc}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vc} -d ${POSTGRES_DB:-vc}"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    mem_limit: ${POSTGRES_MEM_LIMIT:-512m}
+    restart: unless-stopped
+    networks:
+      - internal
 
   backend:
-    image: node:20
-    working_dir: /app
-    volumes:
-      - ./backend:/app
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vc-backend
     environment:
-      DATABASE_URL: "postgresql://vc:vc@postgres:5432/vc?schema=public"
-    command: sh -c "npm install && npm run start:dev"
-    ports:
-      - "3001:3001"
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-vc}:${POSTGRES_PASSWORD:-vc}@postgres:5432/${POSTGRES_DB:-vc}?schema=public
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-minimax-m2.5}
+      PROJECT_ROOT: /workspace
+      AI_MAX_CONTEXT_FILES: ${AI_MAX_CONTEXT_FILES:-20}
+      AI_MAX_FILE_CHARS: ${AI_MAX_FILE_CHARS:-8000}
+      AI_MAX_CONTEXT_CHARS: ${AI_MAX_CONTEXT_CHARS:-160000}
+      AI_MAX_LISTED_PATHS: ${AI_MAX_LISTED_PATHS:-1200}
+    volumes:
+      - ./:/workspace:ro
+    expose:
+      - "3001"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    mem_limit: ${BACKEND_MEM_LIMIT:-768m}
+    restart: unless-stopped
+    networks:
+      - internal
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: vc-frontend
+    expose:
+      - "4173"
+    depends_on:
+      - backend
+    mem_limit: ${FRONTEND_MEM_LIMIT:-512m}
+    restart: unless-stopped
+    networks:
+      - internal
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: vc-nginx
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx_logs:/var/log/nginx
+    mem_limit: ${NGINX_MEM_LIMIT:-256m}
+    restart: unless-stopped
+    networks:
+      - internal
+
+  backup:
+    image: postgres:15-alpine
+    container_name: vc-backup
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-vc}
+      POSTGRES_USER: ${POSTGRES_USER:-vc}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vc}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backup/scripts:/scripts:ro
+      - ./backup/data:/backups
+    command: ["sh", "/scripts/backup.sh"]
+    mem_limit: ${BACKUP_MEM_LIMIT:-256m}
+    restart: unless-stopped
+    networks:
+      - internal
+
+  fail2ban:
+    image: crazymax/fail2ban:latest
+    container_name: vc-fail2ban
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    depends_on:
+      - nginx
+    environment:
+      TZ: ${TZ:-Asia/Almaty}
+    volumes:
+      - ./security/fail2ban/jail.local:/data/jail.local:ro
+      - ./security/fail2ban/filter.d:/data/filter.d:ro
+      - nginx_logs:/var/log/nginx:ro
+      - /var/log:/var/log:ro
+    mem_limit: ${FAIL2BAN_MEM_LIMIT:-256m}
+    restart: unless-stopped
+    profiles:
+      - security
+
+  ssh:
+    image: lscr.io/linuxserver/openssh-server:latest
+    container_name: vc-ssh
+    environment:
+      TZ: ${TZ:-Asia/Almaty}
+      PUID: ${SSH_PUID:-1000}
+      PGID: ${SSH_PGID:-1000}
+      SUDO_ACCESS: false
+      PASSWORD_ACCESS: false
+      USER_NAME: ${SSH_USER:-vcadmin}
+      PUBLIC_KEY_FILE: /config/keys/authorized_keys
+    ports:
+      - "2222:2222"
+    volumes:
+      - ./security/ssh/config:/config
+      - ./backup/data:/workspace/backup:ro
+    mem_limit: ${SSH_MEM_LIMIT:-128m}
+    restart: unless-stopped
+    profiles:
+      - security
+    networks:
+      - internal
 
 volumes:
   pgdata:
+  nginx_logs:
+
+networks:
+  internal:
+    driver: bridge

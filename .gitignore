@@ -23,4 +23,7 @@ build/
 *.zip
 zip_extracted/
 
+# Backups / secrets
+backup/data/*.dump
+security/ssh/config/keys/authorized_keys
 
