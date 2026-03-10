@@ -47,22 +47,6 @@ export class ClassesService {
             include: { discipline: true },
         });
 
-        // Auto-enroll students who have this discipline
-        if (dto.disciplineId) {
-            // Find all students (role=student)
-            const students = await this.prisma.user.findMany({
-                where: { role: "student" },
-                select: { id: true },
-            });
-
-            if (students.length > 0) {
-                await this.prisma.enrollment.createMany({
-                    data: students.map((s) => ({ studentId: s.id, classId: cls.id })),
-                    skipDuplicates: true,
-                });
-            }
-        }
-
         return cls;
     }
 

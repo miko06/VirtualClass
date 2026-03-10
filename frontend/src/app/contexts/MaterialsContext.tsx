@@ -1,8 +1,9 @@
 /**
  * MaterialsContext – shared persistent state for materials between teacher and student panels.
- * Uses localStorage as primary storage to work without a backend server.
+ * Uses the backend API for storage.
  */
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import { materialsApi, MaterialItem } from '../../api/client';
 
 export type SharedMaterialType = 'pdf' | 'video' | 'archive' | 'document' | 'spreadsheet' | 'url' | 'text';
 export type MaterialType = SharedMaterialType;
@@ -17,65 +18,84 @@ export interface SharedMaterial {
     uploadDate: string;
     isVerified: boolean;
     url: string;
+    teacherId?: number;
+    teacher?: { id: number; name: string | null; email: string } | null;
 }
 
 interface MaterialsContextValue {
     materials: SharedMaterial[];
     loading: boolean;
     error: string | null;
-    addMaterial: (m: Omit<SharedMaterial, 'id' | 'uploadDate' | 'isVerified'>) => Promise<void>;
+    addMaterial: (m: Omit<SharedMaterial, 'id' | 'uploadDate' | 'isVerified'> & { teacherId: number }) => Promise<void>;
     removeMaterial: (id: string) => Promise<void>;
     refreshMaterials: () => Promise<void>;
 }
 
 const MaterialsContext = createContext<MaterialsContextValue | null>(null);
 
-const LS_KEY = 'vc_shared_materials_v1';
-
-function loadMaterials(): SharedMaterial[] {
-    try {
-        const raw = localStorage.getItem(LS_KEY);
-        return raw ? JSON.parse(raw) : [];
-    } catch {
-        return [];
-    }
-}
-
-function saveMaterials(materials: SharedMaterial[]) {
-    try {
-        localStorage.setItem(LS_KEY, JSON.stringify(materials));
-    } catch {
-        // storage quota exceeded — ignore
-    }
+function mapItem(item: MaterialItem): SharedMaterial {
+    return {
+        id: String(item.id),
+        title: item.title,
+        description: item.description ?? '',
+        type: item.type as SharedMaterialType,
+        courseName: item.courseName,
+        size: item.size ?? '',
+        uploadDate: new Date(item.createdAt).toLocaleDateString('ru-RU', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+        }),
+        isVerified: item.isVerified,
+        url: item.url ?? '#',
+        teacherId: item.teacherId,
+        teacher: item.teacher,
+    };
 }
 
 export function MaterialsProvider({ children }: { children: ReactNode }) {
-    const [materials, setMaterials] = useState<SharedMaterial[]>(loadMaterials);
-    const [loading] = useState(false);
-    const [error] = useState<string | null>(null);
-
-    // Persist every change to localStorage
-    useEffect(() => {
-        saveMaterials(materials);
-    }, [materials]);
+    const [materials, setMaterials] = useState<SharedMaterial[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const refreshMaterials = useCallback(async () => {
-        // Reload from localStorage
-        setMaterials(loadMaterials());
+        setLoading(true);
+        setError(null);
+        try {
+            const items = await materialsApi.list();
+            setMaterials(items.map(mapItem));
+        } catch (e) {
+            setError('Не удалось загрузить материалы');
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
-    const addMaterial = useCallback(async (m: Omit<SharedMaterial, 'id' | 'uploadDate' | 'isVerified'>) => {
-        const newMaterial: SharedMaterial = {
-            ...m,
-            id: crypto.randomUUID(),
-            uploadDate: new Date().toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' }),
-            isVerified: true,
-        };
-        setMaterials(prev => [newMaterial, ...prev]);
-    }, []);
+    useEffect(() => {
+        refreshMaterials();
+    }, [refreshMaterials]);
+
+    const addMaterial = useCallback(
+        async (m: Omit<SharedMaterial, 'id' | 'uploadDate' | 'isVerified'> & { teacherId: number }) => {
+            const item = await materialsApi.create({
+                title: m.title,
+                description: m.description,
+                type: m.type,
+                courseName: m.courseName,
+                size: m.size,
+                url: m.url,
+                teacherId: m.teacherId,
+            });
+            setMaterials((prev) => [mapItem(item), ...prev]);
+        },
+        []
+    );
 
     const removeMaterial = useCallback(async (id: string) => {
-        setMaterials(prev => prev.filter(m => m.id !== id));
+        const numId = parseInt(id, 10);
+        await materialsApi.remove(numId);
+        setMaterials((prev) => prev.filter((m) => m.id !== id));
     }, []);
 
     return (

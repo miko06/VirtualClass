@@ -40,6 +40,7 @@ services:
       AI_MAX_LISTED_PATHS: ${AI_MAX_LISTED_PATHS:-1200}
     volumes:
       - ./:/workspace:ro
+      - uploads_data:/app/uploads
     expose:
       - "3001"
     depends_on:
@@ -150,6 +151,7 @@ services:
 volumes:
   pgdata:
   nginx_logs:
+  uploads_data:
 
 networks:
   internal:

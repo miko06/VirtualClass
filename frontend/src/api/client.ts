@@ -130,4 +130,67 @@ export const materialsApi = {
   remove(id: number): Promise<void> {
     return request(`/materials/${id}`, { method: 'DELETE' });
   },
+  /** Upload a binary file; returns { url, originalName, size, mimetype } */
+  async uploadFile(file: File): Promise<{ url: string; originalName: string; size: number; mimetype: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(`${baseUrl}/materials/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || 'File upload failed');
+    }
+    return response.json();
+  },
+  /** Build a full downloadable URL for a stored file path like /uploads/xxx.pdf */
+  fileUrl(storedUrl: string): string {
+    if (!storedUrl || storedUrl === '#') return '#';
+    if (storedUrl.startsWith('http')) return storedUrl;
+    return `${baseUrl}${storedUrl}`;
+  },
+};
+
+export interface AdminClassItem {
+  id: number;
+  name: string;
+  description: string | null;
+  semester: string | null;
+  teacherId: number;
+  teacher: { id: number; name: string | null; email: string };
+  discipline: { id: number; name: string } | null;
+  enrolledGroups: { group: string; count: number }[];
+  totalStudents: number;
+  createdAt: string;
+}
+
+export interface GroupItem {
+  group: string;
+  count: number;
+}
+
+export const adminApi = {
+  getClasses(): Promise<AdminClassItem[]> {
+    return request('/admin/classes');
+  },
+  getGroups(): Promise<GroupItem[]> {
+    return request('/admin/groups');
+  },
+  getStudentsByGroup(group: string): Promise<User[]> {
+    return request(`/admin/groups/${encodeURIComponent(group)}/students`);
+  },
+  getTeachers(): Promise<User[]> {
+    return request('/admin/teachers');
+  },
+  enrollGroup(classId: number, group: string): Promise<{ enrolled: number; total: number }> {
+    return request(`/admin/classes/${classId}/enroll-group?group=${encodeURIComponent(group)}`, {
+      method: 'POST',
+    });
+  },
+  unenrollGroup(classId: number, group: string): Promise<{ removed: number }> {
+    return request(`/admin/classes/${classId}/unenroll-group?group=${encodeURIComponent(group)}`, {
+      method: 'DELETE',
+    });
+  },
 };

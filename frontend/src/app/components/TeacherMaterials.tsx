@@ -1,16 +1,14 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Upload, FileText, Link as LinkIcon, Video, File, Check, Trash2, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ThemeSquaresBackground } from './ThemeSquaresBackground';
 import { useMaterials, SharedMaterialType } from '../contexts/MaterialsContext';
+import { classesApi, materialsApi } from '../../api/client';
+import type { User as AppUser } from '../../api/client';
 
-const COURSES = [
-  'Машинное обучение',
-  'Веб-разработка',
-  'Базы данных',
-  'Алгоритмы и структуры данных',
-  'Информационная безопасность',
-];
+interface TeacherMaterialsProps {
+  currentUser?: AppUser | null;
+}
 
 const EXT_TO_TYPE: Record<string, SharedMaterialType> = {
   pdf: 'pdf',
@@ -31,9 +29,10 @@ function formatSize(bytes: number): string {
   return `${(bytes / 1_000).toFixed(0)} КБ`;
 }
 
-export function TeacherMaterials() {
+export function TeacherMaterials({ currentUser }: TeacherMaterialsProps) {
   const { materials, addMaterial, removeMaterial } = useMaterials();
 
+  const [courses, setCourses] = useState<string[]>([]);
   const [selectedCourse, setSelectedCourse] = useState('');
   const [uploadMethod, setUploadMethod] = useState<'file' | 'url' | 'text'>('file');
   const [title, setTitle] = useState('');
@@ -44,6 +43,17 @@ export function TeacherMaterials() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load teacher's classes for the dropdown
+  useEffect(() => {
+    if (!currentUser?.id) return;
+    classesApi.byTeacher(currentUser.id).then((cls) => {
+      setCourses(cls.map((c) => c.name));
+    }).catch(console.error);
+  }, [currentUser?.id]);
+
+  // Only show teacher's own materials in the sidebar
+  const myMaterials = materials.filter((m) => m.teacherId === currentUser?.id);
 
   const handleFilePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -59,22 +69,28 @@ export function TeacherMaterials() {
   );
 
   const handleUpload = async () => {
-    if (!canSubmit) return;
+    if (!canSubmit || !currentUser?.id) return;
     setIsUploading(true);
     try {
-      const type: SharedMaterialType =
-        uploadMethod === 'file' && pickedFile
-          ? getTypeFromFileName(pickedFile.name)
-          : uploadMethod === 'url'
-            ? 'video'
-            : 'document';
+      let fileUrl = '#';
+      let size = '';
+      let type: SharedMaterialType = 'document';
 
-      const size =
-        uploadMethod === 'file' && pickedFile
-          ? formatSize(pickedFile.size)
-          : uploadMethod === 'url'
-            ? 'Внешняя ссылка'
-            : `${textValue.trim().length} симв.`;
+      if (uploadMethod === 'file' && pickedFile) {
+        // Upload the actual file to backend, get the stored URL
+        const uploaded = await materialsApi.uploadFile(pickedFile);
+        fileUrl = uploaded.url;
+        size = formatSize(uploaded.size);
+        type = getTypeFromFileName(pickedFile.name);
+      } else if (uploadMethod === 'url') {
+        fileUrl = urlValue.trim();
+        size = 'Внешняя ссылка';
+        type = 'url';
+      } else if (uploadMethod === 'text') {
+        fileUrl = '#';
+        size = `${textValue.trim().length} симв.`;
+        type = 'text';
+      }
 
       await addMaterial({
         title: title.trim(),
@@ -82,7 +98,8 @@ export function TeacherMaterials() {
         type,
         courseName: selectedCourse,
         size,
-        url: uploadMethod === 'url' ? urlValue.trim() : '#',
+        url: fileUrl,
+        teacherId: currentUser.id,
       });
 
       // Reset form
@@ -145,7 +162,7 @@ export function TeacherMaterials() {
                 className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-medium rounded-xl outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition appearance-none"
               >
                 <option value="">Выберите курс...</option>
-                {COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+                {courses.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
 
@@ -285,21 +302,21 @@ export function TeacherMaterials() {
             className="rounded-3xl p-6 bg-white dark:bg-[#151821] shadow-xl shadow-slate-200/50 dark:shadow-none ring-1 ring-slate-100 dark:ring-slate-800"
           >
             <h3 className="text-lg font-bold text-slate-800 dark:text-white tracking-tight mb-6">
-              Опубликованные материалы
-              {materials.length > 0 && (
-                <span className="ml-2 text-xs font-bold bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full">{materials.length}</span>
+              Мои материалы
+              {myMaterials.length > 0 && (
+                <span className="ml-2 text-xs font-bold bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full">{myMaterials.length}</span>
               )}
             </h3>
 
             <AnimatePresence>
-              {materials.length === 0 ? (
+              {myMaterials.length === 0 ? (
                 <div className="text-center py-10 text-slate-400 flex flex-col items-center gap-3">
                   <BookOpen className="w-8 h-8 opacity-30" />
                   <p className="text-sm font-medium">Нет загруженных материалов.<br />Загрузите первый!</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {materials.map((m, index) => (
+                  {myMaterials.map((m, index) => (
                     <motion.div
                       key={m.id}
                       initial={{ opacity: 0, y: -8 }}

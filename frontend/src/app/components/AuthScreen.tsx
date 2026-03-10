@@ -1,7 +1,7 @@
 import { User, usersApi } from '../../api/client';
 import AuthCard, { SignInValues, SignUpValues } from './AuthCard';
 
-type UserRole = 'teacher' | 'student';
+type UserRole = 'teacher' | 'student' | 'admin';
 
 interface AuthScreenProps {
   onAuth: (role: UserRole, user?: User) => void;
