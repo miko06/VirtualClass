@@ -1,5 +1,5 @@
 import { User, usersApi } from '../../api/client';
-import AuthCard, { SignInValues, SignUpValues } from './AuthCard';
+import AuthCard, { SignInValues } from './AuthCard';
 
 type UserRole = 'teacher' | 'student' | 'admin';
 
@@ -14,16 +14,5 @@ export function AuthScreen({ onAuth }: AuthScreenProps) {
     onAuth(user.role as UserRole, user);
   };
 
-  const handleSignUp = async (values: SignUpValues) => {
-    const createdUser = await usersApi.create({
-      name: values.name,
-      email: values.email,
-      password: values.password,
-      role: 'student',
-    });
-    localStorage.setItem('currentUserId', String(createdUser.id));
-    onAuth('student', createdUser);
-  };
-
-  return <AuthCard onSignIn={handleSignIn} onSignUp={handleSignUp} />;
+  return <AuthCard onSignIn={handleSignIn} />;
 }

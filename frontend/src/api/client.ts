@@ -61,6 +61,12 @@ export const usersApi = {
       body: JSON.stringify({ email, password }),
     });
   },
+  register(name: string, email: string, password: string): Promise<User> {
+    return request('/users', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, password, role: 'student' }),
+    });
+  },
   create(data: { name: string; email: string; password: string; role: string }): Promise<User> {
     return request('/users', {
       method: 'POST',
