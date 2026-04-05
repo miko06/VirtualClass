@@ -216,13 +216,6 @@ function MessageBubble({ message }: { message: Message }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-const INITIAL_MESSAGE: Message = {
-  id: 'welcome',
-  type: 'ai',
-  content: 'Hello! I\'m your AI assistant. How can I help you today?',
-  timestamp: new Date(),
-};
-
 const MODELS: ModelOption[] = [
   { id: 'claude-sonnet-4', name: 'Sonnet 4.6', description: 'Balanced model', badge: 'Latest' },
   { id: 'claude-opus-3.5', name: 'Opus 3.5', description: 'Highest intelligence' },
@@ -239,7 +232,7 @@ const QUICK_ACTIONS = [
 export function AIAssistant() {
   const [chats, setChats] = useState<Chat[]>(() => loadChats());
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [streamingText, setStreamingText] = useState('');
@@ -253,7 +246,7 @@ export function AIAssistant() {
 
   const startNewChat = useCallback(() => {
     setActiveChatId(null);
-    setMessages([INITIAL_MESSAGE]);
+    setMessages([]);
   }, []);
 
   const openChat = useCallback((chat: Chat) => {
@@ -447,12 +440,9 @@ export function AIAssistant() {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-700">
-          {messages.length <= 1 && (
+          {messages.length === 0 && !isLoading && (
             <div className="flex flex-col items-center justify-center h-full text-center py-20">
-              <div className="w-16 h-16 rounded-2xl bg-zinc-700 flex items-center justify-center mb-4">
-                <Bot className="w-8 h-8 text-white" />
-              </div>
-              <h2 className="text-2xl font-serif font-light text-zinc-100 mb-2">How can I help you today?</h2>
+              <h2 className="text-xl font-light text-zinc-500">Начните чат</h2>
             </div>
           )}
 
@@ -487,7 +477,7 @@ export function AIAssistant() {
         </div>
 
         {/* Input Area */}
-        <div className="p-6 bg-[#09090b]/95 backdrop-blur-sm border-t border-zinc-800/50 relative z-10">
+        <div className="p-6 bg-[#09090b]/95 backdrop-blur-sm relative z-10">
           <ClaudeChatInput
             onSendMessage={handleSendMessage}
             disabled={isLoading}
