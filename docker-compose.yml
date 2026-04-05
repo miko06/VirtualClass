@@ -41,8 +41,9 @@ services:
     volumes:
       - ./:/workspace:ro
       - uploads_data:/app/uploads
-    expose:
-      - "3001"
+    ports:
+      - "3001:3001"
+      - "5555:5555"
     depends_on:
       postgres:
         condition: service_healthy
