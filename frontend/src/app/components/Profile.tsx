@@ -86,9 +86,9 @@ export function Profile({ currentUser }: ProfileProps) {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="rounded-3xl p-8 bg-gradient-to-b from-[#15284a] via-[#1a1f2b] to-[#181d28] shadow-2xl shadow-indigo-500/15 ring-1 ring-[#2a3348] flex flex-col items-center text-center relative overflow-hidden"
+            className="rounded-3xl p-8 bg-gradient-to-b from-indigo-600 via-indigo-700 to-indigo-900 dark:from-[#15284a] dark:via-[#1a1f2b] dark:to-[#181d28] shadow-2xl shadow-indigo-500/15 ring-1 ring-indigo-200 dark:ring-[#2a3348] flex flex-col items-center text-center relative overflow-hidden"
           >
-            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-[#27467a] to-[#15284a]" />
+            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-indigo-400 to-indigo-600 dark:from-[#27467a] dark:to-[#15284a]" />
 
             <div className="w-32 h-32 rounded-3xl mx-auto mb-5 flex items-center justify-center relative z-10 shadow-2xl shadow-indigo-500/30 border-4 border-white"
               style={{ background: 'linear-gradient(135deg, #4f46e5, #0ea5e9)' }}>
@@ -112,7 +112,7 @@ export function Profile({ currentUser }: ProfileProps) {
                 </p>
               )}
 
-              <div className="space-y-4 text-left mb-8 bg-[#101827]/75 p-5 rounded-2xl border border-[#2a3348]">
+              <div className="space-y-4 text-left mb-8 bg-white/10 dark:bg-[#101827]/75 p-5 rounded-2xl border border-white/20 dark:border-[#2a3348]">
                 {contactItems.map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-4 text-sm font-medium">
                     <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
@@ -168,26 +168,7 @@ export function Profile({ currentUser }: ProfileProps) {
             </div>
           </motion.div>
 
-          {/* Activity Placeholder */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="rounded-3xl p-7 bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100"
-          >
-            <h3 className="text-lg font-bold text-slate-800 tracking-tight mb-5">Активность</h3>
-            <div className="h-48 rounded-2xl flex items-center justify-center relative overflow-hidden bg-gradient-to-r from-slate-50 to-slate-100 border border-dashed border-slate-300">
-              <motion.div
-                animate={{ backgroundPosition: ['0% center', '200% center'] }}
-                transition={{ repeat: Infinity, duration: 20, ease: 'linear' }}
-                className="absolute inset-0 opacity-10"
-                style={{ backgroundImage: 'repeating-linear-gradient(-45deg, transparent, transparent 10px, #4f46e5 10px, #4f46e5 20px)', backgroundSize: '200% 200%' }}
-              />
-              <p className="text-sm font-bold text-slate-400 relative z-10 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" /> График активности (В разработке)
-              </p>
-            </div>
-          </motion.div>
+
         </div>
       </div>
     </div>

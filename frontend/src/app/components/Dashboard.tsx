@@ -40,7 +40,7 @@ export function Dashboard({ user }: DashboardProps) {
   const initials = getInitials(profileName);
 
   return (
-    <div className="min-h-screen relative bg-[#0f1115] text-white">
+    <div className="min-h-screen relative bg-white dark:bg-[#0f1115] text-slate-900 dark:text-white">
       <ThemeSquaresBackground />
 
       <div className="relative z-20 pt-16">
@@ -51,47 +51,47 @@ export function Dashboard({ user }: DashboardProps) {
         titleComponent={
           <div className="space-y-4">
             {/* Compact profile badge */}
-            <div className="inline-flex relative z-50 -translate-y-4 items-center gap-3 px-5 py-3 rounded-2xl border border-cyan-400/20 bg-[#101827] shadow-2xl backdrop-blur-md">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400/40 to-blue-500/40 border border-cyan-300/30 text-sm font-bold">
+            <div className="inline-flex relative z-50 -translate-y-4 items-center gap-3 px-5 py-3 rounded-2xl border border-cyan-400/20 dark:bg-[#101827] bg-white shadow-2xl backdrop-blur-md">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 dark:from-cyan-400/40 dark:to-blue-500/40 border border-cyan-300 dark:border-cyan-300/30 text-sm font-bold">
                 {initials}
               </div>
               <div className="text-left">
-                <p className="text-sm font-semibold text-white">{profileName}</p>
-                <p className="text-xs text-cyan-300/70">{profileRole} · {profileId}</p>
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">{profileName}</p>
+                <p className="text-xs text-slate-500 dark:text-cyan-300/70">{profileRole} · {profileId}</p>
               </div>
             </div>
           </div>
         }
       >
         {/* Card content: Spline scene + profile details side by side */}
-        <div className="relative w-full h-full flex overflow-hidden rounded-2xl bg-[#0d1420]">
+        <div className="relative w-full h-full flex overflow-hidden rounded-2xl bg-slate-100 dark:bg-[#0d1420]">
           {/* Left: profile details */}
-          <div className="hidden md:flex flex-col justify-center w-[300px] shrink-0 px-7 py-8 border-r border-white/10 bg-[#101827]/80 backdrop-blur-sm">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400/30 to-blue-500/30 border border-cyan-300/30 text-2xl font-bold mb-5">
+          <div className="hidden md:flex flex-col justify-center w-[300px] shrink-0 px-7 py-8 border-r border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#101827]/80 backdrop-blur-sm">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 dark:from-cyan-400/30 dark:to-blue-500/30 border border-cyan-300 dark:border-cyan-300/30 text-2xl font-bold mb-5">
               {initials}
             </div>
 
-            <h3 className="text-lg font-bold text-white mb-1">{profileName}</h3>
-            <p className="text-xs text-cyan-300/70 mb-6">{profileId}</p>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{profileName}</h3>
+            <p className="text-xs text-slate-500 dark:text-cyan-300/70 mb-6">{profileId}</p>
 
             <div className="space-y-3">
-              <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5">
-                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-0.5">Email</p>
-                <p className="text-sm text-slate-200 truncate">{profileEmail}</p>
+              <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-2.5">
+                <p className="text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-0.5">Email</p>
+                <p className="text-sm text-slate-700 dark:text-slate-200 truncate">{profileEmail}</p>
               </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5">
-                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-0.5">Роль</p>
-                <p className="text-sm text-slate-200">{profileRole}</p>
+              <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-2.5">
+                <p className="text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-0.5">Роль</p>
+                <p className="text-sm text-slate-700 dark:text-slate-200">{profileRole}</p>
               </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5">
-                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-0.5">В системе с</p>
-                <p className="text-sm text-slate-200">{createdAt}</p>
+              <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-4 py-2.5">
+                <p className="text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-0.5">В системе с</p>
+                <p className="text-sm text-slate-700 dark:text-slate-200">{createdAt}</p>
               </div>
-              <div className="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2.5">
-                <p className="text-[10px] uppercase tracking-widest text-cyan-400/70 mb-0.5">Статус</p>
+              <div className="rounded-xl border border-emerald-200 dark:border-cyan-400/20 bg-emerald-50 dark:bg-cyan-400/10 px-4 py-2.5">
+                <p className="text-[10px] uppercase tracking-widest text-emerald-600 dark:text-cyan-400/70 mb-0.5">Статус</p>
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <p className="text-sm text-emerald-300">Онлайн</p>
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300">Онлайн</p>
                 </div>
               </div>
             </div>
@@ -104,24 +104,24 @@ export function Dashboard({ user }: DashboardProps) {
               className="w-full h-full"
             />
             {/* Subtle gradient overlay at edges */}
-            <div className="absolute inset-0 pointer-events-none rounded-2xl" style={{
+            <div className="absolute inset-0 pointer-events-none rounded-2xl opacity-0 dark:opacity-100" style={{
               background: 'linear-gradient(to right, #0d1420 0%, transparent 10%, transparent 90%, #0d1420 100%)',
             }} />
           </div>
 
           {/* Mobile-only profile overlay */}
           <div className="absolute bottom-4 left-4 right-4 md:hidden">
-            <div className="rounded-xl border border-cyan-300/20 bg-[#101827]/90 p-4 backdrop-blur-md">
+            <div className="rounded-xl border border-cyan-300/20 dark:bg-[#101827]/90 bg-white/90 p-4 backdrop-blur-md">
               <div className="flex items-center gap-3 mb-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400/30 to-blue-500/30 border border-cyan-300/30 text-sm font-bold">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 dark:from-cyan-400/30 dark:to-blue-500/30 border border-cyan-300 dark:border-cyan-300/30 text-sm font-bold">
                   {initials}
                 </div>
                 <div>
-                  <p className="text-sm font-bold">{profileName}</p>
-                  <p className="text-xs text-cyan-300/70">{profileId}</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">{profileName}</p>
+                  <p className="text-xs text-slate-500 dark:text-cyan-300/70">{profileId}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-xs text-slate-300">
+              <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-300">
                 <p><span className="text-slate-500">Email:</span><br />{profileEmail}</p>
                 <p><span className="text-slate-500">Роль:</span><br />{profileRole}</p>
               </div>
