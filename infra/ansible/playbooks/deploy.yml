@@ -1,0 +1,6 @@
+---
+- name: Deploy VirtualClass stack
+  hosts: virtualclass
+  become: true
+  roles:
+    - deploy

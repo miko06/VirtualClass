@@ -1,0 +1,6 @@
+---
+- name: Provision VirtualClass host
+  hosts: virtualclass
+  become: true
+  roles:
+    - common

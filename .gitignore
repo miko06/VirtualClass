@@ -23,6 +23,17 @@ build/
 *.zip
 zip_extracted/
 
+# Terraform
+.Fast-Terraform-main
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+crash.log
+
+# Ansible local inventory overrides
+infra/ansible/inventories/dev/hosts.local.ini
+
 # Backups / secrets
 backup/data/*.dump
 security/ssh/config/keys/authorized_keys

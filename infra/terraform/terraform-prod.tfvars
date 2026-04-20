@@ -1,0 +1,12 @@
+project_name       = "virtualclass"
+environment        = "prod"
+instance_type     = "t2.micro"
+tag                = "VC-PROD"
+location           = "eu-central-1"
+availability_zone = "eu-central-1c"
+vpc_cidr           = "10.1.0.0/16"
+public_subnet_cidr = "10.1.0.0/24"
+ssh_allowed_cidr   = "0.0.0.0/0"
+public_key        = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILHG+75jCaX/iLFQvyJLJbZMtDaQIzlk0v2u7Bnc6+sh virtualclass"
+app_port           = 80
+ami               = "ami-0d1ddd83282187d18"

@@ -1,0 +1,49 @@
+---
+- name: Ensure project directory exists
+  ansible.builtin.file:
+    path: "{{ project_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Checkout repository
+  ansible.builtin.git:
+    repo: "{{ repo_url }}"
+    dest: "{{ project_dir }}"
+    version: "{{ repo_version }}"
+    update: true
+
+- name: Write docker env file from variables
+  ansible.builtin.template:
+    src: env.docker.j2
+    dest: "{{ project_dir }}/.env"
+    mode: '0600'
+
+- name: Pull latest images
+  ansible.builtin.command:
+    cmd: docker compose pull
+    chdir: "{{ project_dir }}"
+  register: pull_result
+  changed_when: "'Downloaded' in pull_result.stdout or 'Pulling' in pull_result.stdout"
+
+- name: Start stack
+  ansible.builtin.command:
+    cmd: >-
+      docker compose
+      {% if docker_compose_profile | length > 0 %}--profile {{ docker_compose_profile }}{% endif %}
+      up -d --build
+    chdir: "{{ project_dir }}"
+  register: up_result
+  changed_when: "'Recreating' in up_result.stdout or 'Creating' in up_result.stdout or 'Starting' in up_result.stdout"
+
+- name: Show compose status
+  ansible.builtin.command:
+    cmd: docker compose ps
+    chdir: "{{ project_dir }}"
+  register: compose_ps
+  changed_when: false
+
+- name: Print compose status
+  ansible.builtin.debug:
+    var: compose_ps.stdout_lines

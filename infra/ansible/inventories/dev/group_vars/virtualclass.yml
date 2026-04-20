@@ -1,0 +1,25 @@
+project_dir: /opt/virtualclass
+repo_url: https://github.com/your-org/virtualclass.git
+repo_version: main
+docker_compose_profile: ""
+
+app_env:
+  POSTGRES_DB: vc
+  POSTGRES_USER: vc
+  POSTGRES_PASSWORD: change_me
+  POSTGRES_MEM_LIMIT: 512m
+  BACKEND_MEM_LIMIT: 768m
+  FRONTEND_MEM_LIMIT: 512m
+  NGINX_MEM_LIMIT: 256m
+  BACKUP_MEM_LIMIT: 256m
+  FAIL2BAN_MEM_LIMIT: 256m
+  SSH_MEM_LIMIT: 128m
+  JENKINS_MEM_LIMIT: 1024m
+  BACKUP_RETENTION_DAYS: 7
+  BACKUP_INTERVAL_SECONDS: 86400
+  OLLAMA_BASE_URL: http://host.docker.internal:11434
+  OLLAMA_MODEL: minimax-m2.5
+  TZ: Asia/Almaty
+  SSH_USER: vcadmin
+  SSH_PUID: 1000
+  SSH_PGID: 1000

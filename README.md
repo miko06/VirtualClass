@@ -16,6 +16,7 @@
 - [Управление контейнерами](#управление-контейнерами)
 - [Резервное копирование](#резервное-копирование)
 - [Безопасность](#безопасность)
+- [CI/CD и IaC](#cicd-и-iac)
 - [Устранение неполадок](#устранение-неполадок)
 
 ---
@@ -57,6 +58,7 @@ VirtualClass/
 - **backup** - Автоматическое резервное копирование
 - **fail2ban** - Защита от brute-force атак (опционально)
 - **ssh** - SSH доступ для администрирования (опционально)
+- **jenkins** - CI сервер (опционально, профиль `ci`)
 
 ---
 
@@ -345,7 +347,59 @@ docker compose up -d
 
 # Запуск с профилем безопасности (fail2ban + ssh)
 docker compose --profile security up -d
+
+# Запуск Jenkins профиля
+docker compose --profile ci up -d
 ```
+
+Jenkins будет доступен на `http://localhost:8081`.
+
+---
+
+## 🔁 CI/CD и IaC
+
+В проект добавлены:
+
+- `Jenkinsfile` - pipeline для frontend/backend (install, build, lint, test, docker build)
+- `infra/terraform/` - AWS инфраструктура (VPC, subnet, SG, EC2)
+- `infra/ansible/` - provisioning хоста и deploy Docker Compose
+
+### Jenkins
+
+1. Запуск:
+
+```bash
+docker compose --profile ci up -d --build jenkins
+```
+
+2. Откройте `http://localhost:8081`
+3. Получите initial admin password:
+
+```bash
+docker exec -it vc-jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+```
+
+4. Установите рекомендуемые плагины и создайте Pipeline Job, укажите `Pipeline script from SCM` и путь `Jenkinsfile`.
+
+### Terraform
+
+```bash
+cd infra/terraform
+cp terraform.tfvars.example terraform.tfvars
+terraform init
+terraform plan
+terraform apply
+```
+
+### Ansible
+
+```bash
+cd infra/ansible
+ansible-playbook -i inventories/dev/hosts.ini playbooks/provision.yml
+ansible-playbook -i inventories/dev/hosts.ini playbooks/deploy.yml
+```
+
+Подробности: `infra/README.md`, `infra/terraform/README.md`, `infra/ansible/README.md`.
 
 ### Остановка
 

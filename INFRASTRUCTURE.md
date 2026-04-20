@@ -4,8 +4,13 @@
 
 ```text
 VirtualClass
+ ├ ci
+ │  └ jenkins
  ├ backend
  ├ frontend
+ ├ infra
+ │  ├ terraform
+ │  └ ansible
  ├ nginx
  ├ postgres
  ├ backup
@@ -25,6 +30,9 @@ VirtualClass
 - `ssh` контейнер с доступом по ключу (профиль `security`)
 - host firewall скрипт на UFW
 - backend AI endpoint `/ai/chat` с доступом к файлам проекта (`PROJECT_ROOT=/workspace`)
+- Jenkins pipeline (`Jenkinsfile`) + отдельный профиль `ci`
+- Terraform конфигурация для AWS EC2
+- Ansible playbooks для provisioning/deploy
 
 ## Запуск
 
@@ -49,6 +57,7 @@ docker compose --profile security up -d
 - `BACKUP_MEM_LIMIT`
 - `FAIL2BAN_MEM_LIMIT`
 - `SSH_MEM_LIMIT`
+- `JENKINS_MEM_LIMIT`
 
 Как изменить:
 
