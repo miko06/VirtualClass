@@ -21,7 +21,7 @@ type ChatResult = {
 @Injectable()
 export class AiService {
   private readonly ollamaBaseUrl = process.env.OLLAMA_BASE_URL ?? "http://localhost:11434";
-  private readonly preferredModel = process.env.OLLAMA_MODEL ?? "minimax-m2.5";
+  private readonly preferredModel = process.env.OLLAMA_MODEL ?? "qwen3.5:cloud";
   private readonly fallbackModels = ["qwen2.5:7b", "llama3.1:8b", "llama3.2:3b", "gemma2:9b"];
   private readonly workspaceRoot = process.env.PROJECT_ROOT ?? path.resolve(process.cwd(), "..");
   private readonly maxContextFiles = Number(process.env.AI_MAX_CONTEXT_FILES ?? 8);
@@ -30,7 +30,7 @@ export class AiService {
   private readonly modelCacheTtlMs = Number(process.env.AI_MODEL_CACHE_TTL_MS ?? 10 * 60_000);
   private readonly projectCacheTtlMs = Number(process.env.AI_PROJECT_CACHE_TTL_MS ?? 5 * 60_000);
   private readonly responseTemperature = Number(process.env.AI_TEMPERATURE ?? 0.2);
-  private readonly maxResponseTokens = Number(process.env.AI_NUM_PREDICT ?? 384);
+  private readonly maxResponseTokens = Number(process.env.AI_NUM_PREDICT ?? 2048);
   private readonly contextWindow = Number(process.env.AI_NUM_CTX ?? 4096);
   private readonly ollamaKeepAlive = process.env.OLLAMA_KEEP_ALIVE ?? "30m";
 

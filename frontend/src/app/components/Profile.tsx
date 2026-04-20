@@ -86,20 +86,18 @@ export function Profile({ currentUser }: ProfileProps) {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="rounded-3xl p-8 bg-gradient-to-b from-indigo-600 via-indigo-700 to-indigo-900 dark:from-[#15284a] dark:via-[#1a1f2b] dark:to-[#181d28] shadow-2xl shadow-indigo-500/15 ring-1 ring-indigo-200 dark:ring-[#2a3348] flex flex-col items-center text-center relative overflow-hidden"
+            className="rounded-3xl p-8 bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100 flex flex-col items-center text-center relative overflow-hidden"
           >
-            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-indigo-400 to-indigo-600 dark:from-[#27467a] dark:to-[#15284a]" />
-
             <div className="w-32 h-32 rounded-3xl mx-auto mb-5 flex items-center justify-center relative z-10 shadow-2xl shadow-indigo-500/30 border-4 border-white"
               style={{ background: 'linear-gradient(135deg, #4f46e5, #0ea5e9)' }}>
               <span className="text-3xl text-white font-extrabold tracking-tight">{initials}</span>
             </div>
 
             <div className="relative z-10 w-full">
-              <h3 className="text-2xl font-bold text-slate-100 tracking-tight mb-1">{fullName}</h3>
+              <h3 className="text-2xl font-bold text-slate-800 tracking-tight mb-1">{fullName}</h3>
 
               {currentUser?.group && (
-                <p className="text-sm font-bold text-indigo-300 mb-1">Группа: {currentUser.group}</p>
+                <p className="text-sm font-bold text-indigo-500 mb-1">Группа: {currentUser.group}</p>
               )}
               {currentUser?.specialtyCode && (
                 <p className="text-xs font-semibold text-slate-400 mb-6 uppercase tracking-wider">
@@ -112,13 +110,13 @@ export function Profile({ currentUser }: ProfileProps) {
                 </p>
               )}
 
-              <div className="space-y-4 text-left mb-8 bg-white/10 dark:bg-[#101827]/75 p-5 rounded-2xl border border-white/20 dark:border-[#2a3348]">
+              <div className="space-y-4 text-left mb-8 bg-slate-50 p-5 rounded-2xl border border-slate-100">
                 {contactItems.map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-4 text-sm font-medium">
                     <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-4 h-4 text-indigo-300" />
+                      <Icon className="w-4 h-4 text-indigo-500" />
                     </div>
-                    <span className="text-slate-300 truncate">{text}</span>
+                    <span className="text-slate-600 truncate">{text}</span>
                   </div>
                 ))}
               </div>

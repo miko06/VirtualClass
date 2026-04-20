@@ -5,6 +5,7 @@ import { ThemeSquaresBackground } from './ThemeSquaresBackground';
 import { classesApi, ClassItem } from '../../api/client';
 import type { User } from '../../api/client';
 import { CourseDetails } from './CourseDetails';
+import Folder from './Folder';
 
 const COLORS = [
   { color: '#4f46e5', textColor: 'text-indigo-600', bgColor: 'bg-indigo-50' },
@@ -78,7 +79,7 @@ export function Courses({ currentUser }: CoursesProps) {
         )}
 
         {!loading && !error && classes.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
             {classes.map((cls, i) => {
               const palette = COLORS[i % COLORS.length];
               const studentCount = cls.enrollments?.length ?? 0;
@@ -88,55 +89,56 @@ export function Courses({ currentUser }: CoursesProps) {
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.07 }}
-                  className="bg-white dark:bg-[#1c1e24] rounded-2xl ring-1 ring-gray-100 dark:ring-gray-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden flex flex-col"
+                  className="bg-white dark:bg-[#1c1e24] rounded-2xl ring-1 ring-gray-100 dark:ring-gray-800 shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden flex flex-col"
                 >
-                  <div className="h-1 w-full" style={{ backgroundColor: palette.color }} />
-
-                  <div className="p-5 flex flex-col flex-1 gap-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0 pr-3">
-                        <h3 className="text-base font-bold text-gray-900 dark:text-white tracking-tight leading-snug">
-                          {cls.name}
-                        </h3>
-                        {cls.teacher && (
-                          <p className="text-sm text-gray-400 dark:text-gray-500 font-medium mt-0.5">{cls.teacher.name}</p>
-                        )}
-                      </div>
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${palette.bgColor}`}>
-                        <BookOpen className={`w-5 h-5 ${palette.textColor}`} />
-                      </div>
+                  <div
+                    className="p-5 flex items-center gap-5 cursor-pointer"
+                    onClick={() => setSelectedCourse(cls)}
+                  >
+                    <div className="flex-shrink-0" style={{ height: '100px', position: 'relative' }}>
+                      <Folder size={1.1} color={palette.color} />
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-bold text-gray-900 dark:text-white tracking-tight leading-snug">
+                        {cls.name}
+                      </h3>
+                      {cls.teacher && (
+                        <p className="text-sm text-gray-400 dark:text-gray-500 font-medium mt-0.5">{cls.teacher.name}</p>
+                      )}
+                    </div>
+                  </div>
 
-                    {cls.description && (
+                  {cls.description && (
+                    <div className="px-5 pb-3">
                       <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-medium line-clamp-2">
                         {cls.description}
                       </p>
+                    </div>
+                  )}
+
+                  <div className="px-5 pb-3 flex flex-wrap gap-2">
+                    {cls.semester && (
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 px-2.5 py-1 rounded-lg border border-gray-100 dark:border-gray-800">
+                        <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                        {cls.semester}
+                      </div>
                     )}
+                    {studentCount > 0 && (
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 px-2.5 py-1 rounded-lg border border-gray-100 dark:border-gray-800">
+                        <Users className="w-3.5 h-3.5 text-gray-400" />
+                        {studentCount} студентов
+                      </div>
+                    )}
+                  </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      {cls.semester && (
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 px-2.5 py-1 rounded-lg border border-gray-100 dark:border-gray-800">
-                          <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                          {cls.semester}
-                        </div>
-                      )}
-                      {studentCount > 0 && (
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 px-2.5 py-1 rounded-lg border border-gray-100 dark:border-gray-800">
-                          <Users className="w-3.5 h-3.5 text-gray-400" />
-                          {studentCount} студентов
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex gap-2.5 mt-auto pt-1">
-                      <button
-                        onClick={() => setSelectedCourse(cls)}
-                        className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 hover:shadow-md hover:-translate-y-0.5 active:scale-95"
-                        style={{ backgroundColor: palette.color }}
-                      >
-                        Войти в класс <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                  <div className="px-5 pb-5 pt-1 mt-auto">
+                    <button
+                      onClick={() => setSelectedCourse(cls)}
+                      className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 hover:shadow-md hover:-translate-y-0.5 active:scale-95"
+                      style={{ backgroundColor: palette.color }}
+                    >
+                      Войти в класс <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </motion.div>
               );

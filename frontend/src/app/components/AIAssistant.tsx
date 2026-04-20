@@ -217,9 +217,7 @@ function MessageBubble({ message }: { message: Message }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 const MODELS: ModelOption[] = [
-  { id: 'claude-sonnet-4', name: 'Sonnet 4.6', description: 'Balanced model', badge: 'Latest' },
-  { id: 'claude-opus-3.5', name: 'Opus 3.5', description: 'Highest intelligence' },
-  { id: 'claude-haiku-3', name: 'Haiku 3', description: 'Fastest responses' },
+  { id: 'qwen3.5:cloud', name: 'Qwen 3.5 Cloud', description: 'Ollama модель', badge: 'Local' },
 ];
 
 const QUICK_ACTIONS = [

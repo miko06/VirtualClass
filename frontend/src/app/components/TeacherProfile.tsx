@@ -204,10 +204,8 @@ export function TeacherProfile({ currentUser }: { currentUser: User | null }) {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="rounded-3xl p-8 bg-gradient-to-b from-[#15284a] via-[#1a1f2b] to-[#181d28] shadow-2xl shadow-indigo-500/15 ring-1 ring-[#2a3348] flex flex-col items-center text-center relative overflow-hidden flex-1"
+                        className="rounded-3xl p-8 bg-white dark:bg-[#1a1d24] shadow-xl shadow-slate-200/50 dark:shadow-black/20 ring-1 ring-slate-100 dark:ring-slate-800 flex flex-col items-center text-center relative overflow-hidden flex-1"
                     >
-                        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-[#27467a] to-[#15284a]" />
-
                         <div
                             className="w-32 h-32 rounded-3xl mx-auto mb-5 flex items-center justify-center relative z-10 shadow-2xl shadow-indigo-500/30 border-4 border-white"
                             style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}
@@ -216,22 +214,22 @@ export function TeacherProfile({ currentUser }: { currentUser: User | null }) {
                         </div>
 
                         <div className="relative z-10 w-full">
-                            <h3 className="text-2xl font-bold text-slate-100 tracking-tight mb-1">{fullName}</h3>
-                            <p className="text-xs font-semibold text-indigo-300 uppercase tracking-wider mb-1">Преподаватель</p>
+                            <h3 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight mb-1">{fullName}</h3>
+                            <p className="text-xs font-semibold text-indigo-500 uppercase tracking-wider mb-1">Преподаватель</p>
                             {currentUser?.specialtyCode && (
                                 <p className="text-xs font-semibold text-slate-400 mb-4">{currentUser.specialtyCode}</p>
                             )}
                             {!currentUser?.specialtyCode && <div className="mb-4" />}
 
-                            <div className="space-y-3.5 text-left mb-6 bg-[#101827]/75 p-5 rounded-2xl border border-[#2a3348]">
+                            <div className="space-y-3.5 text-left mb-6 bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50">
                                 {contactItems.map(({ icon: Icon, label, text }) => (
                                     <div key={label} className="flex items-center gap-4 text-sm font-medium">
                                         <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                                            <Icon className="w-4 h-4 text-indigo-300" />
+                                            <Icon className="w-4 h-4 text-indigo-500" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">{label}</p>
-                                            <p className="text-slate-300 truncate text-sm">{text}</p>
+                                            <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">{label}</p>
+                                            <p className="text-slate-600 dark:text-slate-300 truncate text-sm">{text}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -239,11 +237,11 @@ export function TeacherProfile({ currentUser }: { currentUser: User | null }) {
 
                             {/* Quick badges */}
                             <div className="flex flex-wrap gap-2 justify-center mb-6">
-                                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-500 border border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30">
                                     <BookOpen className="w-3.5 h-3.5" /> {courses.length} курсов
                                 </span>
                                 {totalPending > 0 && (
-                                    <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                    <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-600 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30">
                                         <Clock className="w-3.5 h-3.5" /> {totalPending} на проверке
                                     </span>
                                 )}
