@@ -119,7 +119,5 @@ resource "aws_instance" "app" {
 
   tags = merge(local.tags, {
     Name        = var.tag
-    PublicIP   = aws_instance.app.public_ip
-    PrivateIP  = aws_instance.app.private_ip
   })
 }
