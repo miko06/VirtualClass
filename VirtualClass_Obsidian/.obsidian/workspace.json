@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "API.md",
+                "file": "Фронтенд.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "API"
+              "title": "Фронтенд"
             }
           }
         ]
@@ -183,16 +183,16 @@
       "bases:Создать новую базу": false
     }
   },
-  "active": "f5148ad9d392f6ac",
+  "active": "918127c883a7031e",
   "lastOpenFiles": [
+    "Инфраструктура.md",
+    "Архитектура.md",
+    "Бэкенд.md",
     "AI_интеграция.md",
     "Фронтенд.md",
-    "Инфраструктура.md",
-    "Бэкенд.md",
-    "База_данных.md",
-    "Архитектура.md",
-    "VIrtualClass.md",
     "API.md",
+    "База_данных.md",
+    "VIrtualClass.md",
     "Без названия.md",
     "Без названия",
     "создайте ссылку.md"

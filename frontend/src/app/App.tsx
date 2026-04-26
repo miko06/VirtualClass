@@ -2,14 +2,13 @@ import { useState } from 'react';
 import { AuthScreen } from './components/AuthScreen';
 import { Dashboard } from './components/Dashboard';
 import { Courses } from './components/Courses';
-import { AIAssistant } from './components/AIAssistant';
+import { FloatingAIAssistant } from './components/FloatingAIAssistant';
 import { Materials } from './components/Materials';
 import { StudentAssignments } from './components/StudentAssignments';
 import { Profile } from './components/Profile';
 import { TeacherDashboard } from './components/TeacherDashboard';
 import { TeacherCourses } from './components/TeacherCourses';
 import { TeacherMaterials } from './components/TeacherMaterials';
-import { AIAssignmentGenerator } from './components/AIAssignmentGenerator';
 import { StudentSubmissions } from './components/StudentSubmissions';
 import { TeacherStudents } from './components/TeacherStudents';
 import { TeacherProfile } from './components/TeacherProfile';
@@ -17,7 +16,7 @@ import { AdminPanel } from './components/AdminPanel';
 import { ThemeSquaresBackground } from './components/ThemeSquaresBackground';
 import Dock, { DockItemData } from './components/Dock';
 import {
-  Home, BookOpen, Bot, FileText, CheckSquare, User, LogOut,
+  Home, BookOpen, FileText, CheckSquare, User, LogOut,
   Upload, Users, Sun, Moon, Shield, LayoutDashboard,
 } from 'lucide-react';
 import { useTheme } from './contexts/ThemeContext';
@@ -64,8 +63,6 @@ export default function App() {
         return <StudentSubmissions currentUser={currentUser} />;
       case 'submissions':
         return <StudentSubmissions currentUser={currentUser} />;
-      case 'ai-generator':
-        return <AIAssignmentGenerator />;
       case 'students':
         return <TeacherStudents currentUser={currentUser} />;
       case 'profile':
@@ -82,8 +79,6 @@ export default function App() {
         return <Dashboard user={currentUser} />;
       case 'courses':
         return <Courses currentUser={currentUser} />;
-      case 'ai-assistant':
-        return <AIAssistant />;
       case 'materials':
         return <Materials />;
       case 'assignments':
@@ -110,7 +105,6 @@ export default function App() {
     { label: 'Курсы', icon: <BookOpen size={20} />, onClick: () => setActiveTab('courses'), isActive: activeTab === 'courses' },
     { label: 'Материалы', icon: <Upload size={20} />, onClick: () => setActiveTab('materials'), isActive: activeTab === 'materials' },
     { label: 'Задания', icon: <CheckSquare size={20} />, onClick: () => setActiveTab('assignments'), isActive: activeTab === 'assignments' },
-    { label: 'Генератор', icon: <Bot size={20} />, onClick: () => setActiveTab('ai-generator'), isActive: activeTab === 'ai-generator' },
     { label: 'Студенты', icon: <Users size={20} />, onClick: () => setActiveTab('students'), isActive: activeTab === 'students' },
     { label: 'Профиль', icon: <User size={20} />, onClick: () => setActiveTab('profile'), isActive: activeTab === 'profile' },
     { label: 'Выйти', icon: <LogOut size={20} />, onClick: handleLogout, className: '!border-red-500/30 hover:!border-red-500' },
@@ -119,7 +113,6 @@ export default function App() {
   const studentDockItems: DockItemData[] = [
     { label: 'Главная', icon: <Home size={20} />, onClick: () => setActiveTab('dashboard'), isActive: activeTab === 'dashboard' },
     { label: 'Мои курсы', icon: <BookOpen size={20} />, onClick: () => setActiveTab('courses'), isActive: activeTab === 'courses' },
-    { label: 'ИИ Помощник', icon: <Bot size={20} />, onClick: () => setActiveTab('ai-assistant'), isActive: activeTab === 'ai-assistant' },
     { label: 'Материалы', icon: <FileText size={20} />, onClick: () => setActiveTab('materials'), isActive: activeTab === 'materials' },
     { label: 'Задания', icon: <CheckSquare size={20} />, onClick: () => setActiveTab('assignments'), isActive: activeTab === 'assignments' },
     { label: 'Профиль', icon: <User size={20} />, onClick: () => setActiveTab('profile'), isActive: activeTab === 'profile' },
@@ -175,6 +168,8 @@ export default function App() {
               />
             </div>
           </div>
+
+          <FloatingAIAssistant />
         </div>
       </MaterialsProvider>
     </AppDataProvider>
