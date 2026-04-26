@@ -2,7 +2,7 @@
 
 ## Обзор
 
-Модуль `AiModule` интегрирует **n8n** — платформу автоматизации с AI Agent — для предоставления чат-ассистента. Бэкенд проксирует запросы на n8n webhook, который обрабатывает их через LLM провайдер (OpenAI или другой).
+Модуль `AiModule` интегрирует **n8n** — платформу автоматизации с HTTP Request — для предоставления чат-ассистента. Бэкенд проксирует запросы на n8n webhook, который отправляет их в OpenRouter API через HTTP Request.
 
 **Файлы**:
 - `backend/src/ai/ai.module.ts`
@@ -56,14 +56,16 @@
 Workflow `virtualclass-ai-workflow.json` состоит из:
 
 1. **Webhook node** — принимает POST запросы на `/webhook/virtualclass-ai`
-2. **AI Agent node** — обрабатывает запрос через LLM
-3. **OpenAI Model node** — использует GPT-4o-mini (настраивается)
-4. **Respond to Webhook node** — возвращает ответ клиенту
+2. **HTTP Request node (OpenRouter API)** — отправляет запрос к OpenRouter API с моделью `nvidia/nemotron-nano-12b-v2-vl:free` (поддерживает vision/ввод изображений), авторизация через Bearer token (httpHeaderAuth)
+3. **Respond to Webhook node** — возвращает ответ клиенту
 
-### 3. Системный промпт
+### 3. Разбор ответа
 
-AI Agent настроен с системным промптом:
-> "Ты — ИИ-ассистент образовательной платформы VirtualClass. Помогай студентам и преподавателям с учебными вопросами, объясняй темы, помогай с кодом и заданиями. Отвечай на русском языке. Будь дружелюбным и полезным."
+Бэкенд `ai.service.ts` парсит ответ OpenRouter в формате:
+```json
+{ "choices": [{ "message": { "content": "..." } }] }
+```
+Извлекается `choices[0].message.content`.
 
 ## Конфигурация
 
@@ -71,7 +73,7 @@ AI Agent настроен с системным промптом:
 |-----------|----------|-------------|
 | `N8N_WEBHOOK_URL` | URL n8n webhook | `http://n8n:5678/webhook/virtualclass-ai` |
 | `N8N_ENCRYPTION_KEY` | Ключ шифрования n8n | `your-secret-encryption-key-change-me` |
-| `OPENAI_API_KEY` | API ключ OpenAI | — |
+| `N8N_API_KEY` | API ключ для доступа к n8n | — |
 
 ## Настройка n8n
 
@@ -86,17 +88,9 @@ AI Agent настроен с системным промптом:
 ### 2. Настройка credentials
 
 1. Откройте workflow в n8n
-2. Нажмите на node "OpenAI Model"
-3. Создайте credential "OpenAI API" с вашим API ключом
+2. Нажмите на node "HTTP Request"
+3. Создайте credential "OpenRouter Auth" типа `httpHeaderAuth` с заголовком `Authorization: Bearer <your-openrouter-api-key>`
 4. Активируйте workflow
-
-### 3. Смена LLM провайдера
-
-В n8n можно заменить OpenAI на любой другой провайдер:
-- Anthropic (Claude)
-- Google Gemini
-- Mistral
-- Локальные модели через Ollama node
 
 ## Поток данных
 
@@ -118,7 +112,7 @@ AiService
 n8n Webhook
   │
   ▼
-AI Agent → LLM (OpenAI / другой провайдер)
+HTTP Request → OpenRouter API (nvidia/nemotron-nano-12b-v2-vl:free, vision)
   │
   ▼
 Respond to Webhook

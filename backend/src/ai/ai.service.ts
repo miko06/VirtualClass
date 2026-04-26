@@ -50,7 +50,14 @@ export class AiService {
     }
 
     const data = await response.json().catch(() => null);
-    const reply = typeof data === "string" ? data : (data?.output ?? data?.reply ?? data?.message ?? "");
+    const reply = typeof data === "string"
+      ? data
+      : data?.choices?.[0]?.message?.content
+        ?? data?.output
+        ?? data?.reply
+        ?? data?.message?.content
+        ?? data?.message
+        ?? "";
 
     if (!reply.trim()) {
       throw new BadGatewayException("n8n вернул пустой ответ");
@@ -58,9 +65,11 @@ export class AiService {
 
     onDelta?.(reply);
 
+    const model = typeof data === "object" && data?.model ? data.model : "n8n-ai-agent";
+
     return {
       reply,
-      model: "n8n-ai-agent",
+      model,
       filesUsed: [],
       filesScanned: 0,
       contextMode: "n8n",

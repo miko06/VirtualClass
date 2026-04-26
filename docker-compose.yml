@@ -85,6 +85,8 @@ services:
     environment:
       N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-your-secret-encryption-key-change-me}
       N8N_EDITOR_BASE_URL: ${N8N_EDITOR_BASE_URL:-http://localhost:5678}
+      N8N_API_KEY: ${N8N_API_KEY:-n8n_api_key_change_me}
+      N8N_PUBLIC_API_ENABLED: "true"
       WEBHOOK_URL: ${N8N_WEBHOOK_URL:-http://n8n:5678/webhook/virtualclass-ai}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     ports:

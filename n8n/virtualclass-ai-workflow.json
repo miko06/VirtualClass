@@ -17,47 +17,26 @@
     },
     {
       "parameters": {
-        "options": {
-          "systemMessage": "Ты — ИИ-ассистент образовательной платформы VirtualClass. Помогай студентам и преподавателям с учебными вопросами, объясняй темы, помогай с кодом и заданиями. Отвечай на русском языке. Будь дружелюбным и полезным."
-        }
-      },
-      "id": "ai-agent-node",
-      "name": "AI Agent",
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 1.7,
-      "position": [500, 300]
-    },
-    {
-      "parameters": {
-        "model": "gpt-4o-mini",
-        "options": {
-          "temperature": 0.7,
-          "maxTokens": 2048
-        }
-      },
-      "id": "openai-model-node",
-      "name": "OpenAI Model",
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1,
-      "position": [500, 100],
-      "credentials": {
-        "openAiApi": {
-          "id": "openai-credential",
-          "name": "OpenAI API"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsonMode": "expressionData",
-        "responseData": "={{ $json.output }}",
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\": \"nvidia/nemotron-nano-12b-v2-vl:free\", \"messages\": [{\"role\": \"system\", \"content\": \"Ты — ИИ-ассистент образовательной платформы VirtualClass. Помогай студентам и преподавателям с учебными вопросами, объясняй темы, помогай с кодом и заданиями. Отвечай на русском языке. Будь дружелюбным и полезным.\"}, {\"role\": \"user\", \"content\": \"{{ $json.body.messages[$json.body.messages.length - 1].content }}\"}], \"temperature\": 0.7}",
         "options": {}
       },
-      "id": "respond-node",
-      "name": "Respond to Webhook",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.1,
-      "position": [750, 300]
+      "id": "http-request-node",
+      "name": "OpenRouter API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OPENROUTER_AUTH_CRED_ID",
+          "name": "OpenRouter Auth"
+        }
+      }
     }
   ],
   "connections": {
@@ -65,28 +44,8 @@
       "main": [
         [
           {
-            "node": "AI Agent",
+            "node": "OpenRouter API",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "Respond to Webhook",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ],
-      "ai_languageModel": [
-        [
-          {
-            "node": "OpenAI Model",
-            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -94,11 +53,7 @@
     }
   },
   "pinData": {},
-  "settings": {
-    "executionOrder": "v1",
-    "saveManualExecutions": true,
-    "callerPolicy": "workflowsFromSameOwner"
-  },
+  "settings": {},
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
