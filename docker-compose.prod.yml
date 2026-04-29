@@ -1,0 +1,132 @@
+name: virtualclass
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: vc-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-vc}
+      POSTGRES_USER: ${POSTGRES_USER:-vc}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vc} -d ${POSTGRES_DB:-vc}"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    mem_limit: ${POSTGRES_MEM_LIMIT:-512m}
+    restart: unless-stopped
+    networks:
+      - internal
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: vc-backend
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-vc}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-vc}?schema=public
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-http://n8n:5678/webhook/virtualclass-ai}
+      FRONTEND_URL: ${FRONTEND_URL}
+    volumes:
+      - uploads_data:/app/uploads
+    ports:
+      - "127.0.0.1:3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    mem_limit: ${BACKEND_MEM_LIMIT:-768m}
+    restart: unless-stopped
+    networks:
+      - internal
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        VITE_API_URL: /api
+    container_name: vc-frontend
+    expose:
+      - "4173"
+    depends_on:
+      - backend
+    mem_limit: ${FRONTEND_MEM_LIMIT:-512m}
+    restart: unless-stopped
+    networks:
+      - internal
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: vc-nginx
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - nginx_logs:/var/log/nginx
+    mem_limit: ${NGINX_MEM_LIMIT:-256m}
+    restart: unless-stopped
+    networks:
+      - internal
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: vc-n8n
+    environment:
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      N8N_EDITOR_BASE_URL: ${N8N_EDITOR_BASE_URL}
+      N8N_API_KEY: ${N8N_API_KEY}
+      N8N_PUBLIC_API_ENABLED: "true"
+      WEBHOOK_URL: ${N8N_WEBHOOK_URL}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    ports:
+      - "127.0.0.1:5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n:/data/workflows:ro
+    depends_on:
+      - backend
+    mem_limit: ${N8N_MEM_LIMIT:-512m}
+    restart: unless-stopped
+    networks:
+      - internal
+
+  backup:
+    image: postgres:15-alpine
+    container_name: vc-backup
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-vc}
+      POSTGRES_USER: ${POSTGRES_USER:-vc}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backup/scripts:/scripts:ro
+      - ./backup/data:/backups
+    command: ["sh", "/scripts/backup.sh"]
+    mem_limit: ${BACKUP_MEM_LIMIT:-256m}
+    restart: unless-stopped
+    networks:
+      - internal
+
+volumes:
+  pgdata:
+  nginx_logs:
+  uploads_data:
+  n8n_data:
+
+networks:
+  internal:
+    driver: bridge

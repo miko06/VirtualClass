@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ClaudeChatInput, FileWithPreview, PastedContent, ModelOption } from './ui/claude-style-ai-input';
+import { useAIChat } from '../contexts/AIChatContext';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 const AI_CHAT_STREAM_URL = `${API_BASE_URL}/ai/chat/stream`;
@@ -132,6 +133,8 @@ export function FloatingAIAssistant() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const handleSendMessageRef = useRef<(text: string, files: FileWithPreview[], pastedContent: PastedContent[]) => void>((() => {}) as any);
+  const { registerHandler, unregisterHandler } = useAIChat();
 
   useEffect(() => { saveChats(chats); }, [chats]);
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, streamingText]);
@@ -216,6 +219,17 @@ export function FloatingAIAssistant() {
       setIsLoading(false);
     }
   }, [messages, activeChatId, isLoading, persistMessages]);
+
+  handleSendMessageRef.current = handleSendMessage;
+
+  useEffect(() => {
+    const handler = (message: string) => {
+      setIsOpen(true);
+      handleSendMessageRef.current(message, [], []);
+    };
+    registerHandler(handler);
+    return () => { unregisterHandler(); };
+  }, [registerHandler, unregisterHandler]);
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);

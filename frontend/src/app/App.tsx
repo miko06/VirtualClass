@@ -22,6 +22,7 @@ import {
 import { useTheme } from './contexts/ThemeContext';
 import { MaterialsProvider } from './contexts/MaterialsContext';
 import { AppDataProvider } from './contexts/AppDataContext';
+import { AIChatProvider } from './contexts/AIChatContext';
 import type { User as AppUser } from '../api/client';
 
 type UserRole = 'teacher' | 'student' | 'admin' | null;
@@ -133,7 +134,8 @@ export default function App() {
   return (
     <AppDataProvider>
       <MaterialsProvider>
-        <div className="flex flex-col h-screen bg-gray-50 text-gray-900 transition-colors duration-200 dark:bg-[#0f1115] dark:text-gray-100 relative" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <AIChatProvider>
+          <div className="flex flex-col h-screen bg-gray-50 text-gray-900 transition-colors duration-200 dark:bg-[#0f1115] dark:text-gray-100 relative" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
           {/* Header bar for admin */}
           {userRole === 'admin' && (
             <div className="absolute top-0 left-0 right-0 z-40 flex items-center gap-3 px-6 py-3 bg-white/80 dark:bg-[#0f1115]/80 backdrop-blur border-b border-slate-200 dark:border-slate-800">
@@ -170,7 +172,8 @@ export default function App() {
           </div>
 
           <FloatingAIAssistant />
-        </div>
+          </div>
+        </AIChatProvider>
       </MaterialsProvider>
     </AppDataProvider>
   );
