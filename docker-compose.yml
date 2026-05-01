@@ -96,6 +96,13 @@ services:
       - ./n8n:/data/workflows:ro
     depends_on:
       - backend
+    entrypoint: ["/bin/sh", "/data/workflows/entrypoint.sh"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5678/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
     mem_limit: ${N8N_MEM_LIMIT:-512m}
     restart: unless-stopped
     networks:

@@ -1,11 +1,11 @@
-import * as bcrypt from "bcrypt";
-import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { CreateUserDto } from "./dto/create-user.dto";
+import * as bcrypt from 'bcrypt';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async findAll() {
     return this.prisma.user.findMany({
@@ -26,11 +26,11 @@ export class UsersService {
   async login(email: string, password: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
-      throw new UnauthorizedException("Пользователь не найден");
+      throw new UnauthorizedException('Пользователь не найден');
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      throw new UnauthorizedException("Неверный пароль");
+      throw new UnauthorizedException('Неверный пароль');
     }
     return {
       id: user.id,
@@ -49,7 +49,7 @@ export class UsersService {
     const hash = await bcrypt.hash(dto.password, 10);
 
     return this.prisma.user.create({
-      data: { ...dto, password: hash, role: dto.role ?? "student" },
+      data: { ...dto, password: hash, role: dto.role ?? 'student' },
       select: {
         id: true,
         email: true,

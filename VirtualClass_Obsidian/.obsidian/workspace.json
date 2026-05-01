@@ -11,10 +11,14 @@
             "id": "b1865a6fafc8fc3c",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Граф"
+              "type": "markdown",
+              "state": {
+                "file": "AI_интеграция.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "AI_интеграция"
             }
           }
         ]
@@ -179,7 +183,7 @@
       "bases:Создать новую базу": false
     }
   },
-  "active": "f5148ad9d392f6ac",
+  "active": "b1865a6fafc8fc3c",
   "lastOpenFiles": [
     "Без названия.canvas",
     "База_данных.md",
