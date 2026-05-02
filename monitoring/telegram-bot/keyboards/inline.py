@@ -30,19 +30,19 @@ def graphs_menu():
             [
                 InlineKeyboardButton(
                     text="🖥️ Система",
-                    url=f"http://{SERVER_IP}:3000/d/node-exporter",
+                    url=f"http://{SERVER_IP}:3000/d/vc-node-exporter",
                 )
             ],
             [
                 InlineKeyboardButton(
                     text="🗄️ PostgreSQL",
-                    url=f"http://{SERVER_IP}:3000/d/postgres",
+                    url=f"http://{SERVER_IP}:3000/d/vc-postgres",
                 )
             ],
             [
                 InlineKeyboardButton(
                     text="🌐 Nginx",
-                    url=f"http://{SERVER_IP}:3000/d/nginx",
+                    url=f"http://{SERVER_IP}:3000/d/vc-nginx",
                 )
             ],
             [InlineKeyboardButton(text="◀️ Назад", callback_data="back")],
