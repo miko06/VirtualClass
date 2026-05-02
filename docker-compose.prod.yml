@@ -229,11 +229,32 @@ services:
     networks:
       - internal
 
+   jenkins:
+    build:
+      context: ./ci/jenkins
+      dockerfile: Dockerfile
+    container_name: vc-jenkins
+    user: root
+    environment:
+      JENKINS_OPTS: --prefix=/jenkins
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./:/workspace
+    mem_limit: ${JENKINS_MEM_LIMIT:-1024m}
+    restart: unless-stopped
+    networks:
+      - internal
+
 volumes:
   pgdata:
   nginx_logs:
   uploads_data:
   n8n_data:
+  jenkins_home:
   prometheus_data:
   grafana_data:
   alertmanager_data:
