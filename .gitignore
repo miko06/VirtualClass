@@ -9,6 +9,7 @@ yarn-error.log*
 .env
 .env.*
 !.env.example
+!.env.docker.example
 
 # Build
 dist/
@@ -38,4 +39,9 @@ infra/ansible/inventories/dev/hosts.local.ini
 # Backups / secrets
 backup/data/*.dump
 security/ssh/config/keys/authorized_keys
+
+# Generated SSL certificates
+nginx/ssl/*.key
+nginx/ssl/*.crt
+!nginx/ssl/.gitkeep
 

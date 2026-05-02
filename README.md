@@ -8,9 +8,11 @@
 - [Архитектура](#архитектура)
 - [Требования](#требования)
 - [Быстрый старт](#быстрый-старт)
-- [Запуск проекта](#запуск-проекта)
 - [Доступ к приложению](#доступ-к-приложению)
 - [Учетные данные по умолчанию](#учетные-данные-по-умолчанию)
+- [🤖 AI Интеграция](#-ai-интеграция)
+- [📊 Мониторинг](#-мониторинг)
+- [🔐 HTTPS](#-https)
 - [Работа с базой данных](#работа-с-базой-данных)
 - [Разработка](#разработка)
 - [Управление контейнерами](#управление-контейнерами)
@@ -28,10 +30,11 @@ VirtualClass - это веб-платформа для управления ви
 - **Frontend**: React-приложение с Vite
 - **Backend**: NestJS API с TypeScript
 - **База данных**: PostgreSQL 15
-- **AI интеграция**: Ollama для AI-ассистента
-- **Nginx**: Reverse proxy для маршрутизации
+- **AI интеграция**: n8n + OpenRouter API для AI-ассистента
+- **Nginx**: Reverse proxy с HTTPS
+- **Мониторинг**: Prometheus + Grafana + Alertmanager + Telegram Bot
 - **Автоматическое резервное копирование**: Ежедневные бэкапы БД
-- **Система безопасности**: Fail2ban, SSH доступ по ключу
+- **Система безопасности**: Fail2ban, SSH доступ по ключу, SSL/TLS
 
 ---
 
@@ -39,23 +42,33 @@ VirtualClass - это веб-платформа для управления ви
 
 ```
 VirtualClass/
-├── backend/          # NestJS API (порт 3001)
-├── frontend/         # React приложение (порт 4173)
-├── nginx/            # Reverse proxy конфигурация (порт 80)
-├── postgres/         # Инициализация PostgreSQL
-├── prisma/           # Схема базы данных
-├── backup/           # Скрипты и данные резервного копирования
-├── security/         # Fail2ban и SSH конфигурация
+├── backend/              # NestJS API (порт 3001)
+├── frontend/             # React приложение (порт 4173)
+├── nginx/                # Reverse proxy + SSL (порты 80, 443)
+├── postgres/             # Инициализация PostgreSQL
+├── prisma/               # Схема базы данных
+├── backup/               # Скрипты и данные резервного копирования
+├── security/             # Fail2ban и SSH конфигурация
+├── monitoring/           # Prometheus + Grafana + Alertmanager + Telegram Bot
+├── n8n/                  # n8n workflows (AI интеграция)
+├── scripts/              # Вспомогательные скрипты
 └── docker-compose.yml
 ```
 
 ### Сервисы Docker
 
 - **postgres** - База данных PostgreSQL (порт 5432)
-- **backend** - API сервер NestJS
-- **frontend** - React UI
-- **nginx** - Reverse proxy (порт 80)
+- **backend** - API сервер NestJS (порт 3001)
+- **frontend** - React UI (порт 4173, через nginx)
+- **nginx** - Reverse proxy с HTTPS (порты 80, 443)
+- **n8n** - AI workflow automation (порт 5678)
 - **backup** - Автоматическое резервное копирование
+- **prometheus** - Сбор метрик (порт 9090)
+- **node-exporter** - Метрики хостовой системы (порт 9100)
+- **postgres-exporter** - Метрики PostgreSQL (порт 9187)
+- **grafana** - Визуализация метрик (порт 3000)
+- **alertmanager** - Управление алертами (порт 9093)
+- **telegram-bot** - Telegram мониторинг-бот
 - **fail2ban** - Защита от brute-force атак (опционально)
 - **ssh** - SSH доступ для администрирования (опционально)
 - **jenkins** - CI сервер (опционально, профиль `ci`)
@@ -66,9 +79,9 @@ VirtualClass/
 
 - **Docker** 20.10+
 - **Docker Compose** 2.0+
-- **Ollama** (для AI функциональности) - опционально
-- Минимум **4 GB** RAM для Docker
-- Порты **80**, **5432**, **2222** должны быть свободны
+- Минимум **4 GB** RAM для Docker (рекомендуется 8 GB)
+- Порты **80**, **443**, **5432**, **2222**, **3000**, **9090**, **9093**, **5678**, **9100**, **9187** должны быть свободны
+- OpenRouter API ключ для AI функциональности
 
 ---
 
@@ -89,12 +102,21 @@ cd VirtualClass
 cp .env.docker.example .env
 ```
 
-По умолчанию используются следующие настройки:
-- БД: `vc` / пользователь: `vc` / пароль: `vc`
-- Ollama URL: `http://host.docker.internal:11434`
-- Модель AI: `minimax-m2.5`
+Отредактируйте `.env` и укажите:
+- `POSTGRES_PASSWORD` — пароль базы данных
+- `OPENAI_API_KEY` — OpenRouter API ключ (для AI)
+- `TELEGRAM_BOT_TOKEN` — токен Telegram бота (для мониторинга)
+- `TELEGRAM_CHAT_ID` — ваш Telegram chat ID
+- `SERVER_IP` — публичный IP сервера
 
-### 3. Запуск проекта
+### 3. Генерация SSL сертификата
+
+```bash
+chmod +x scripts/generate-ssl.sh
+./scripts/generate-ssl.sh
+```
+
+### 4. Запуск проекта
 
 ```bash
 docker compose up -d
@@ -102,7 +124,7 @@ docker compose up -d
 
 Дождитесь запуска всех контейнеров (1-2 минуты).
 
-### 4. Инициализация базы данных
+### 5. Инициализация базы данных
 
 После первого запуска необходимо создать схему и заполнить тестовыми данными:
 
@@ -112,9 +134,9 @@ docker exec -it vc-backend npx prisma migrate deploy
 docker exec -it vc-backend npx prisma db seed
 ```
 
-### 5. Готово!
+### 6. Готово!
 
-Откройте браузер: **http://localhost**
+Откройте браузер: **https://localhost**
 
 ---
 
@@ -122,14 +144,18 @@ docker exec -it vc-backend npx prisma db seed
 
 ### Веб-интерфейс
 
-- **URL**: http://localhost
-- **Frontend**: http://localhost (маршрутизируется через Nginx)
-- **Backend API**: http://localhost/api
+- **URL**: https://localhost (редирект с HTTP)
+- **Frontend**: https://localhost (маршрутизируется через Nginx)
+- **Backend API**: https://localhost/api
 
 ### Прямой доступ к сервисам (только для разработки)
 
-- **Backend**: http://localhost:3001 (если пробросить порт)
+- **Backend**: https://localhost:3001
 - **PostgreSQL**: localhost:5432
+- **n8n**: http://localhost:5678
+- **Prometheus**: http://localhost:9090
+- **Grafana**: http://localhost:3000 (admin / admin123)
+- **Alertmanager**: http://localhost:9093
 - **SSH (при включенном профиле security)**: localhost:2222
 
 ---
@@ -184,6 +210,110 @@ docker exec -it vc-backend npx ts-node reset-admin-pwd.ts
 ```
 
 Пароль будет сброшен на `Admin123!`
+
+---
+
+## 🤖 AI Интеграция
+
+AI-ассистент реализован через **n8n** + **OpenRouter API**.
+
+### Как это работает
+
+1. **n8n** запущен как Docker-сервис и содержит workflow `virtualclass-ai-workflow.json`
+2. **OpenRouter API** — сервис, предоставляющий доступ к различным AI-моделям (GPT, Claude, Gemini и др.)
+3. Бэкенд отправляет запросы к n8n webhook, n8n обрабатывает их и вызывает OpenRouter API
+4. Ответ от AI-модели возвращается пользователю в реальном времени
+
+### Настройка
+
+В `.env` файле укажите:
+
+```env
+OPENAI_API_KEY=sk-or-v1-your-openrouter-api-key
+N8N_ENCRYPTION_KEY=your-secret-encryption-key
+N8N_API_KEY=n8n_api_key
+```
+
+### Проверка работоспособности
+
+1. Откройте n8n редактор: http://localhost:5678
+2. Убедитесь, что workflow `virtualclass-ai` активен
+3. В приложении откройте AI-ассистент и отправьте сообщение
+
+---
+
+## 📊 Мониторинг
+
+Полный стек мониторинга на основе Prometheus:
+
+### Сервисы
+
+| Сервис | Порт | Назначение |
+|--------|------|------------|
+| **Prometheus** | `9090` | Сбор и хранение метрик |
+| **Node Exporter** | `9100` | Метрики хостовой системы (CPU, RAM, диск, uptime) |
+| **Postgres Exporter** | `9187` | Метрики PostgreSQL |
+| **Grafana** | `3000` | Визуализация метрик и дашборды |
+| **Alertmanager** | `9093` | Управление алертами |
+| **Telegram Bot** | — | Мониторинг через Telegram с кнопками |
+
+### Доступ
+
+- **Prometheus UI**: http://localhost:9090
+- **Grafana**: http://localhost:3000 (логин: `admin`, пароль: `admin123`)
+- **Alertmanager**: http://localhost:9093
+
+### Алерты
+
+Настроены следующие алерты:
+- **HighCpuUsage** — CPU > 80% (2 мин)
+- **HighMemoryUsage** — RAM > 85% (2 мин)
+- **LowDiskSpace** — диск < 15% (5 мин)
+- **ServiceDown** — любой сервис недоступен (1 мин)
+- **PostgresDown** — PostgreSQL недоступен
+
+### Telegram Bot
+
+Бот предоставляет мониторинг через Telegram с меню:
+
+- 📊 **Статус сервисов** — запрашивает `up` метрики из Prometheus
+- 💾 **Метрики сервера** — CPU, RAM, диск, uptime с прогресс-барами
+- 🗄️ **База данных** — статус, соединения, размер, транзакции
+- 🔔 **Активные алерты** — список из Alertmanager
+- 📈 **Графики** — ссылки на Grafana дашборды
+
+**Настройка:**
+1. Создайте бота через [@BotFather](https://t.me/BotFather)
+2. В `.env` укажите `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID`
+3. Бот автоматически получает алерты от Alertmanager через webhook
+
+---
+
+## 🔐 HTTPS
+
+Проект использует самоподписанный SSL сертификат.
+
+### Генерация сертификата
+
+```bash
+chmod +x scripts/generate-ssl.sh
+./scripts/generate-ssl.sh
+```
+
+Сертификат генерируется в `nginx/ssl/`:
+- `server.crt` — сертификат
+- `server.key` — приватный ключ
+
+### Настройки Nginx
+
+- HTTP (порт 80) → автоматический редирект на HTTPS
+- HTTPS (порт 443) → само приложение
+- Поддерживаются TLSv1.2 и TLSv1.3
+- Заголовки безопасности: HSTS, X-Frame-Options, X-Content-Type-Options, X-XSS-Protection
+
+### Для продакшена
+
+Замените самоподписанный сертификат на сертификат от Let's Encrypt (Certbot) или другого CA.
 
 ---
 
@@ -342,11 +472,14 @@ docker compose ps
 ### Запуск
 
 ```bash
-# Запуск всех основных сервисов
+# Запуск всех основных сервисов (включая мониторинг и AI)
 docker compose up -d
 
 # Запуск с профилем безопасности (fail2ban + ssh)
 docker compose --profile security up -d
+
+# Запуск с Telegram ботом (если указан TELEGRAM_BOT_TOKEN)
+# Бот запускается автоматически в составе основных сервисов
 
 # Запуск Jenkins профиля
 docker compose --profile ci up -d
@@ -440,6 +573,8 @@ POSTGRES_MEM_LIMIT=512m
 BACKEND_MEM_LIMIT=768m
 FRONTEND_MEM_LIMIT=512m
 NGINX_MEM_LIMIT=256m
+PROMETHEUS_MEM_LIMIT=512m
+GRAFANA_MEM_LIMIT=256m
 ```
 
 Затем пересоздайте контейнеры:
@@ -671,26 +806,40 @@ docker exec -it vc-backend npx ts-node reset-admin-pwd.ts
 
 **Решение:**
 
-1. Убедитесь, что Ollama запущен на хосте:
+1. Убедитесь, что n8n запущен:
    ```bash
-   curl http://localhost:11434/api/tags
+   docker compose ps n8n
    ```
 
-2. Проверьте, что модель загружена:
+2. Проверьте логи n8n:
    ```bash
-   ollama list
+   docker compose logs n8n
    ```
 
-3. Загрузите нужную модель:
-   ```bash
-   ollama pull minimax-m2.5
-   ```
-
-4. Проверьте настройки в `.env`:
+3. Проверьте OpenRouter API ключ в `.env`:
    ```env
-   OLLAMA_BASE_URL=http://host.docker.internal:11434
-   OLLAMA_MODEL=minimax-m2.5
+   OPENAI_API_KEY=sk-or-v1-your-openrouter-api-key
    ```
+
+4. Убедитесь, что workflow активен в n8n:
+   - Откройте http://localhost:5678
+   - Проверьте статус workflow `virtualclass-ai`
+
+### Проблема: Мониторинг не работает
+
+**Решение:**
+
+1. Проверьте статус мониторинг-сервисов:
+   ```bash
+   docker compose ps prometheus grafana alertmanager
+   ```
+
+2. Проверьте логи Prometheus:
+   ```bash
+   docker compose logs prometheus
+   ```
+
+3. Проверьте, что Targets доступны в Prometheus UI: http://localhost:9090/targets
 
 ---
 
