@@ -30,9 +30,6 @@ def services_keyboard():
                 InlineKeyboardButton(text="📸 Скрин системы", callback_data="scr_node"),
                 InlineKeyboardButton(text="📸 Скрин БД", callback_data="scr_postgres"),
             ],
-            [
-                InlineKeyboardButton(text="📸 Скрин nginx", callback_data="scr_nginx"),
-            ],
             [InlineKeyboardButton(text="🔄 Обновить", callback_data="refresh")],
             [InlineKeyboardButton(text="◀️ Назад", callback_data="back")],
         ]
