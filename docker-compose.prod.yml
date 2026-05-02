@@ -229,7 +229,7 @@ services:
     networks:
       - internal
 
-   jenkins:
+  jenkins:
     build:
       context: ./ci/jenkins
       dockerfile: Dockerfile

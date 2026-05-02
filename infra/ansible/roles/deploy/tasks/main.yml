@@ -20,17 +20,26 @@
     dest: "{{ project_dir }}/.env"
     mode: '0600'
 
+- name: Generate SSL certificate
+  ansible.builtin.command:
+    cmd: bash scripts/generate-ssl.sh {{ app_env.SERVER_IP }}
+    chdir: "{{ project_dir }}"
+  args:
+    creates: "{{ project_dir }}/nginx/ssl/server.crt"
+  changed_when: false
+
 - name: Pull latest images
   ansible.builtin.command:
-    cmd: docker compose pull
+    cmd: docker compose -f {{ compose_file }} pull
     chdir: "{{ project_dir }}"
   register: pull_result
   changed_when: "'Downloaded' in pull_result.stdout or 'Pulling' in pull_result.stdout"
+  ignore_errors: true
 
 - name: Start stack
   ansible.builtin.command:
     cmd: >-
-      docker compose
+      docker compose -f {{ compose_file }}
       {% if docker_compose_profile | length > 0 %}--profile {{ docker_compose_profile }}{% endif %}
       up -d --build
     chdir: "{{ project_dir }}"
@@ -39,7 +48,7 @@
 
 - name: Show compose status
   ansible.builtin.command:
-    cmd: docker compose ps
+    cmd: docker compose -f {{ compose_file }} ps
     chdir: "{{ project_dir }}"
   register: compose_ps
   changed_when: false
