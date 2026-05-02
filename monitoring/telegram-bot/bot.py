@@ -16,6 +16,10 @@ from keyboards.inline import alert_detail
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 logger = logging.getLogger(__name__)
 
+if not TELEGRAM_BOT_TOKEN:
+    logger.error("TELEGRAM_BOT_TOKEN is not set! Bot will not start.")
+    sys.exit(1)
+
 bot = Bot(
     token=TELEGRAM_BOT_TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
