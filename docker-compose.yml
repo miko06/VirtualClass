@@ -162,6 +162,20 @@ services:
     networks:
       - internal
 
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: vc-nginx-exporter
+    command:
+      - '-nginx.scrape-uri=http://nginx:80/nginx_status'
+    ports:
+      - "9113:9113"
+    depends_on:
+      - nginx
+    mem_limit: ${NGINX_EXPORTER_MEM_LIMIT:-64m}
+    restart: unless-stopped
+    networks:
+      - internal
+
   telegram-bot:
     build:
       context: ./monitoring/telegram-bot

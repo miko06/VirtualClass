@@ -4,9 +4,8 @@ from datetime import datetime
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
 
-from aiogram import Router, F, Bot
+from aiogram import Router, F
 from aiogram.types import CallbackQuery, BufferedInputFile
 
 from services.prometheus import PrometheusClient
@@ -17,18 +16,37 @@ plt.style.use("dark_background")
 plt.rcParams.update({"font.size": 10, "axes.titlesize": 13, "axes.labelsize": 11})
 
 
-async def _send_plot(callback: CallbackQuery, title: str, labels: list, values: list, ylabel: str = "%"):
+async def _send_plot(
+    callback: CallbackQuery,
+    title: str,
+    labels: list,
+    values: list,
+    units: list = None,
+    ylabel: str = "",
+):
     fig, ax = plt.subplots(figsize=(8, 5))
     colors = ["#3498db", "#e74c3c", "#2ecc71", "#f39c12", "#9b59b6", "#1abc9c"]
-    bars = ax.bar(labels, values, color=colors[:len(labels)], edgecolor="white", linewidth=0.5)
+    bars = ax.bar(labels, values, color=colors[: len(labels)], edgecolor="white", linewidth=0.5)
 
-    for bar, val in zip(bars, values):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.5,
-                f"{val:.1f}{ylabel}", ha="center", va="bottom", fontsize=11, fontweight="bold", color="white")
+    if units is None:
+        units = [""] * len(values)
+
+    for bar, val, unit in zip(bars, values, units):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + max(max(values) * 0.02, 1),
+            f"{val:.1f}{unit}",
+            ha="center",
+            va="bottom",
+            fontsize=11,
+            fontweight="bold",
+            color="white",
+        )
 
     ax.set_title(title, pad=15, fontweight="bold")
-    ax.set_ylabel(ylabel)
-    ax.set_ylim(0, max(max(values) * 1.25, 10))
+    if ylabel:
+        ax.set_ylabel(ylabel)
+    ax.set_ylim(0, max(max(values) * 1.2, 10))
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.tick_params(colors="white")
@@ -68,7 +86,9 @@ async def screenshot_node(callback: CallbackQuery):
     await _send_plot(
         callback,
         f"Node Exporter / Система (Uptime: {uptime_str})",
-        labels, values,
+        labels,
+        values,
+        units=["%", "%", "%"],
     )
 
 
@@ -85,23 +105,24 @@ async def screenshot_postgres(callback: CallbackQuery):
     backends = pg_data["backends"] if pg_data["backends"] > 0 else 0
     commits_per_s = pg_data["commits"] if pg_data["commits"] > 0 else 0
 
-    labels = ["Size (MB)", "Backends", "Commits/s"]
+    labels = ["Size", "Backends", "Commits/s"]
     values = [db_size_mb, backends, commits_per_s]
 
     await _send_plot(
         callback,
         "PostgreSQL / База данных",
-        labels, values,
-        ylabel="value",
+        labels,
+        values,
+        units=[" MB", "", "/s"],
     )
 
 
 @router.callback_query(F.data == "scr_nginx")
 async def screenshot_nginx(callback: CallbackQuery):
     prom = PrometheusClient()
-    req_total = await prom._query('rate(nginx_http_requests_total[1m])')
+    nginx = await prom.get_nginx_metrics()
 
-    if "error" in req_total or not req_total.get("result"):
+    if nginx["active_conn"] < 0:
         await callback.message.edit_text(
             "⚠️ Nginx Exporter не настроен.\n\n"
             "Установите <code>nginx-prometheus-exporter</code> и добавьте его в Prometheus.",
@@ -111,4 +132,13 @@ async def screenshot_nginx(callback: CallbackQuery):
         await callback.answer("Nginx exporter не найден", show_alert=True)
         return
 
-    await _send_plot(callback, "Nginx / Веб-сервер", ["Requests/s"], [0])
+    labels = ["Active Conn", "Req/s", "Handled/s"]
+    values = [nginx["active_conn"], nginx["requests_rate"], nginx["handled_rate"]]
+
+    await _send_plot(
+        callback,
+        "Nginx / Веб-сервер",
+        labels,
+        values,
+        units=["", "/s", "/s"],
+    )

@@ -89,6 +89,17 @@ class PrometheusClient:
             "commits": self._extract_first(commits),
         }
 
+    async def get_nginx_metrics(self) -> dict:
+        active = await self._query("nginx_connections_active")
+        requests = await self._query("rate(nginx_http_requests_total[1m])")
+        handled = await self._query("rate(nginx_http_requests_total[1m])")
+
+        return {
+            "active_conn": self._extract_first(active),
+            "requests_rate": self._extract_first(requests),
+            "handled_rate": self._extract_first(handled),
+        }
+
     def _extract_first(self, data: dict) -> float:
         if "error" in data:
             return -1
