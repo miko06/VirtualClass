@@ -2,5 +2,7 @@
 - name: Deploy VirtualClass stack
   hosts: virtualclass
   become: true
+  vars_files:
+    - ../secrets.yml
   roles:
     - deploy

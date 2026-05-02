@@ -35,6 +35,7 @@ crash.log
 
 # Ansible local inventory overrides
 infra/ansible/inventories/dev/hosts.local.ini
+infra/ansible/secrets.yml
 
 # Backups / secrets
 backup/data/*.dump
