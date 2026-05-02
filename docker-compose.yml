@@ -136,7 +136,7 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin123}
-      GF_SERVER_ROOT_URL: http://${SERVER_IP:-localhost}:3000
+      GF_SERVER_ROOT_URL: http://${SERVER_IP}:3000
     ports:
       - "3000:3000"
     volumes:
@@ -171,8 +171,8 @@ services:
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
       PROMETHEUS_URL: http://prometheus:9090
       ALERTMANAGER_URL: http://alertmanager:9093
-      GRAFANA_URL: http://${SERVER_IP:-localhost}:3000
-      SERVER_IP: ${SERVER_IP:-localhost}
+      GRAFANA_URL: http://${SERVER_IP}:3000
+      SERVER_IP: ${SERVER_IP}
     depends_on:
       - prometheus
       - alertmanager
