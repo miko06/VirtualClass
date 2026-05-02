@@ -10,7 +10,7 @@ from aiogram.enums import ParseMode
 from aiogram.types import Message
 
 from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, SERVER_IP
-from handlers import start, services, metrics, database, alerts, graphs
+from handlers import start, services, metrics, database, alerts
 from keyboards.inline import alert_detail
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -31,7 +31,6 @@ dp.include_router(services.router)
 dp.include_router(metrics.router)
 dp.include_router(database.router)
 dp.include_router(alerts.router)
-dp.include_router(graphs.router)
 
 
 # Webhook endpoint for Alertmanager
