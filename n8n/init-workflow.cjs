@@ -130,6 +130,11 @@ async function main() {
       }
     }
 
+    // n8n v2.18+ requires id in workflow JSON
+    if (!workflow.id) {
+      workflow.id = crypto.randomUUID();
+    }
+
     const tmpWfFile = "/tmp/n8n-init-workflow.json";
     fs.writeFileSync(tmpWfFile, JSON.stringify(workflow, null, 2));
 
