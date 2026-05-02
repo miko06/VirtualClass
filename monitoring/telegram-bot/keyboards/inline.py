@@ -23,6 +23,22 @@ def back_button():
     )
 
 
+def services_keyboard():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="📸 Скрин системы", callback_data="scr_node"),
+                InlineKeyboardButton(text="📸 Скрин БД", callback_data="scr_postgres"),
+            ],
+            [
+                InlineKeyboardButton(text="📸 Скрин nginx", callback_data="scr_nginx"),
+            ],
+            [InlineKeyboardButton(text="🔄 Обновить", callback_data="refresh")],
+            [InlineKeyboardButton(text="◀️ Назад", callback_data="back")],
+        ]
+    )
+
+
 def alert_detail(alertmanager_url: str):
     return InlineKeyboardMarkup(
         inline_keyboard=[

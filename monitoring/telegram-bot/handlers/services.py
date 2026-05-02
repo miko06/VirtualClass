@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 
-from keyboards.inline import back_button
+from keyboards.inline import services_keyboard
 from services.prometheus import PrometheusClient
 
 router = Router()
@@ -15,7 +15,7 @@ async def show_services(callback: CallbackQuery):
     if not services:
         await callback.message.edit_text(
             "❌ Не удалось получить статус сервисов.\nPrometheus недоступен.",
-            reply_markup=back_button(),
+            reply_markup=services_keyboard(),
         )
         await callback.answer()
         return
@@ -30,7 +30,7 @@ async def show_services(callback: CallbackQuery):
 
     await callback.message.edit_text(
         "\n".join(lines),
-        reply_markup=back_button(),
+        reply_markup=services_keyboard(),
         parse_mode="HTML",
     )
     await callback.answer()
