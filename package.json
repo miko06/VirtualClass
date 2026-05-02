@@ -5,12 +5,17 @@
     "dev:backend": "docker compose up -d && docker compose logs -f backend",
     "up": "docker compose up -d",
     "logs:backend": "docker compose logs -f backend",
-    "prisma:studio": "npx prisma studio --config backend/prisma.config.ts"
+    "prisma:studio": "npx prisma studio --config backend/prisma.config.ts",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "dependencies": {
     "@prisma/client": "^7.4.0",
     "gsap": "^3.14.2",
     "motion": "^12.34.3",
     "prisma": "^7.4.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.87.0"
   }
 }
